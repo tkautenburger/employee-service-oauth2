@@ -1,13 +1,18 @@
-.DS_Store
 HELP.md
-target/
+target/*.jar
+target/*.original
+target/classes/
+target/dockerfile/
+target/generated-sources/
+target/maven-archiver/
+target/maven-status/
 !target/docker/**
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**
+.DS_Store
 
 ### STS ###
-
 .apt_generated
 .classpath
 .factorypath
