@@ -20,7 +20,6 @@ spring:
 #--------------------------------------
 
   datasource:
-    # url: jdbc:h2:mem:demo
     url: jdbc:postgresql://demodb:5432/demo?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
     # this configuration should go to vault
     # username: 
