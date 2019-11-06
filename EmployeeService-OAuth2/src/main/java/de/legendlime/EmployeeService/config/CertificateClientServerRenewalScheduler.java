@@ -112,12 +112,12 @@ public class CertificateClientServerRenewalScheduler {
 			clientHttpRequestFactoryBean.renew(keyStoreBean, trustStoreBean);
 						
 			if (restTemplateBean != null) {
-				restTemplateBean.renew(restTemplateBuilder, clientHttpRequestFactoryBean);
-				restTemplateBean.getRestTemplate().setRequestFactory(clientHttpRequestFactoryBean.getFactory());
+				restTemplateBean.renew(this.restTemplateBuilder, this.clientHttpRequestFactoryBean);
+				// restTemplateBean.getRestTemplate().setRequestFactory(clientHttpRequestFactoryBean.getFactory());
 				logger.info("Renewed SSL context for RestTemplate");
 			}
 			if (oauth2RestTemplateBean != null) {
-				oauth2RestTemplateBean.renew(clientHttpRequestFactoryBean, details);
+				oauth2RestTemplateBean.renew(this.clientHttpRequestFactoryBean, this.details);
 				logger.info("Renewed SSL context for OAuth2RestTemplate");
 			}
 			
