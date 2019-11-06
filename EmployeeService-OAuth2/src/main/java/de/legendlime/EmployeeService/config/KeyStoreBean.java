@@ -33,7 +33,8 @@ public class KeyStoreBean {
 	}
 
 	public void renew(CertificateBundleBean myCertificateBundle) throws KeyStoreException {
-		keyStore = myCertificateBundle.getCertificateBundle().createKeyStore("vault");
+		certBundle = myCertificateBundle.getCertificateBundle();
+		keyStore = certBundle.createKeyStore("vault");
 	}
 
 }
