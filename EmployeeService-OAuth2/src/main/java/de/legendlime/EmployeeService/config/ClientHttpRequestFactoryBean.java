@@ -53,13 +53,13 @@ public class ClientHttpRequestFactoryBean {
 		this.trustStore = trustStoreBean.getTrustStore();
 		
 		SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(new SSLContextBuilder()
-				.loadTrustMaterial(trustStore, null)
-				.loadKeyMaterial(keyStore, "".toCharArray())
+				.loadTrustMaterial(this.trustStore, null)
+				.loadKeyMaterial(this.keyStore, "".toCharArray())
 				.build());
 
 		HttpClientBuilder clientBuilder = HttpClientBuilder.create();
 		HttpClient httpClient = clientBuilder.setSSLSocketFactory(socketFactory).build();
-		
+
 		this.factory = new HttpComponentsClientHttpRequestFactory(httpClient);
 		logger.debug("Renewed HTTP request factory with certificate: {}", this.keyStore.getCertificate("vault") );
 	}
