@@ -69,6 +69,7 @@ public class CertificateBundleBean {
 				logger.info("Acquired Redis lock, get certificate from Vault");
 				certificateBundle = VaultCertificateUtil.getOrRequestCertificate(vaultProperties, vaultOperations,
 						pkiProperties);
+				logger.debug("SSL cert SN in bundle: {}", certificateBundle.getX509Certificate().getSerialNumber() );
 			} finally {
 				lock.unlock();
 			}
