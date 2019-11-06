@@ -108,6 +108,7 @@ public class CertificateClientServerRenewalScheduler {
 		try {
 			certificateBundleBean.renew();
 			keyStoreBean.renew(certificateBundleBean);
+			logger.debug("SSL cert after keystore update: {}", keyStoreBean.getKeyStore().getCertificate("vault"));
 			trustStoreBean.renew(certificateBundleBean);
 			clientHttpRequestFactoryBean.renew(keyStoreBean, trustStoreBean);
 						
