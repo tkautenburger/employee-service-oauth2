@@ -10,8 +10,6 @@ import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.web.client.RestTemplate;
-
 import de.legendlime.EmployeeService.config.RestTemplateBean;
 
 public class OPAVoter implements AccessDecisionVoter<Object> {
