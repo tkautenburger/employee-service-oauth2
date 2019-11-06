@@ -108,7 +108,6 @@ public class CertificateClientServerRenewalScheduler {
 		try {
 			certificateBundleBean.renew();
 			keyStoreBean.renew(certificateBundleBean);
-			logger.debug("SSL cert after keystore update: {}", keyStoreBean.getKeyStore().getCertificate("vault"));
 			trustStoreBean.renew(certificateBundleBean);
 			clientHttpRequestFactoryBean.renew(keyStoreBean, trustStoreBean);
 						
@@ -122,9 +121,8 @@ public class CertificateClientServerRenewalScheduler {
 			}
 			
 			sslStoreProviderBean.renew(keyStoreBean, trustStoreBean);
-			
 			try {
-				logger.debug("SSL certificate: {}", sslStoreProviderBean.getKeyStore().getCertificate("vault").toString());
+				logger.debug("Updated SSL certificate: {}", sslStoreProviderBean.getKeyStore().getCertificate("vault").toString());
 			} catch (Exception e) {
 				logger.error("Exception: ", e);
 			}
