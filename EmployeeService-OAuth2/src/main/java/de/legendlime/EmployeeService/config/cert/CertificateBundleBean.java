@@ -1,4 +1,4 @@
-package de.legendlime.EmployeeService.config;
+package de.legendlime.EmployeeService.config.cert;
 
 import java.util.concurrent.TimeUnit;
 
@@ -11,6 +11,9 @@ import org.springframework.cloud.vault.config.VaultProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.support.CertificateBundle;
+
+import de.legendlime.EmployeeService.config.vault.VaultCertificateUtil;
+import de.legendlime.EmployeeService.config.vault.VaultPkiProperties;
 
 /**
  * Spring bean containing the certificateBundle acquired from the Vault CA 

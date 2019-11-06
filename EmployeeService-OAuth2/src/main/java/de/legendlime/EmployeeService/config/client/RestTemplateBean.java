@@ -1,4 +1,4 @@
-package de.legendlime.EmployeeService.config;
+package de.legendlime.EmployeeService.config.client;
 
 import java.util.function.Supplier;
 

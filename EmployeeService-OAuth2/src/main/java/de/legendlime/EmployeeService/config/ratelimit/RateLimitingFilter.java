@@ -1,4 +1,4 @@
-package de.legendlime.EmployeeService.config;
+package de.legendlime.EmployeeService.config.ratelimit;
 
 import java.io.IOException;
 

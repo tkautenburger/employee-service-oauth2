@@ -1,10 +1,13 @@
-package de.legendlime.EmployeeService.config;
+package de.legendlime.EmployeeService.config.tomcat;
 
 import java.security.KeyStore;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.server.SslStoreProvider;
 import org.springframework.stereotype.Component;
+
+import de.legendlime.EmployeeService.config.cert.KeyStoreBean;
+import de.legendlime.EmployeeService.config.cert.TrustStoreBean;
 
 /**
  * Spring bean containing SSL configuration with key store and trust store

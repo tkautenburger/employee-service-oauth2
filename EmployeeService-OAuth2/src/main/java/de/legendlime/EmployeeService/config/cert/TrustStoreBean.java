@@ -1,4 +1,4 @@
-package de.legendlime.EmployeeService.config;
+package de.legendlime.EmployeeService.config.cert;
 
 import java.io.IOException;
 import java.security.KeyStore;

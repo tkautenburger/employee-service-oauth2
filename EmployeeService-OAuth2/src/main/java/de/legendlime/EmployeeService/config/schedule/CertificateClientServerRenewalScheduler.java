@@ -1,4 +1,4 @@
-package de.legendlime.EmployeeService.config;
+package de.legendlime.EmployeeService.config.schedule;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -27,7 +27,14 @@ import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
 import org.springframework.stereotype.Component;
 
+import de.legendlime.EmployeeService.config.cert.CertificateBundleBean;
+import de.legendlime.EmployeeService.config.cert.KeyStoreBean;
+import de.legendlime.EmployeeService.config.cert.TrustStoreBean;
+import de.legendlime.EmployeeService.config.client.ClientHttpRequestFactoryBean;
+import de.legendlime.EmployeeService.config.client.RestTemplateBean;
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean;
+import de.legendlime.EmployeeService.config.tomcat.SslStoreProviderBean;
+import de.legendlime.EmployeeService.config.vault.VaultCertificateUtil;
 
 /**
  * Spring Bean scheduling the next certificate renewal based on the current 

@@ -23,7 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.legendlime.EmployeeService.config.RestTemplateBean;
+import de.legendlime.EmployeeService.config.client.RestTemplateBean;
 import de.legendlime.EmployeeService.config.opa.OPAProperties;
 import de.legendlime.EmployeeService.config.opa.OPAVoter;
 

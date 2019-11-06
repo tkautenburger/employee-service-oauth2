@@ -1,4 +1,4 @@
-package de.legendlime.EmployeeService.config;
+package de.legendlime.EmployeeService.config.ratelimit;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

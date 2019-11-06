@@ -13,8 +13,7 @@ import org.springframework.stereotype.Component;
 
 import io.opentracing.Tracer;
 import io.opentracing.contrib.spring.web.client.TracingRestTemplateInterceptor;
-
-import de.legendlime.EmployeeService.config.ClientHttpRequestFactoryBean;
+import de.legendlime.EmployeeService.config.client.ClientHttpRequestFactoryBean;
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean.ServiceAccountEnabled;
 
 @Component
