@@ -141,6 +141,7 @@ security:
 
 logging:
   level:
+    io.opentracing.contrib: error
     org:
       springframework:
         boot:
