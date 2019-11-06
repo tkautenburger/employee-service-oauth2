@@ -36,9 +36,8 @@ public class OAuth2RestTemplateBean {
 	    oAuth2RestTemplate.setRequestFactory(factoryBean.getFactory());
 	    oAuth2RestTemplate.setInterceptors(Collections.singletonList(new TracingRestTemplateInterceptor(this.jaegerTracer)));
 
-	    LOG.debug("Begin OAuth2RestTemplate: getAccessToken");
 	    oAuth2RestTemplate.getAccessToken();
-	    LOG.debug("End OAuth2RestTemplate: getAccessToken");
+	    LOG.debug("Get access token for OAuth2RestTemplate");
 	}
 	
 
@@ -48,12 +47,13 @@ public class OAuth2RestTemplateBean {
 
 	public void renew(ClientHttpRequestFactoryBean factoryBean, OAuth2ProtectedResourceDetails details) {
 		oAuth2RestTemplate.setRequestFactory(factoryBean.getFactory());
+	    LOG.info("Renew OAuth2RestTemplate RequestFactory");
 	}
 
 	/**
 	 * Condition class to configure OAuth2RestTemplate when both security is enabled
-	 * and client credentials property is set for secured micro-service to
-	 * micro-service call.
+	 * and client credentials property is set for secured microservice to
+	 * microservice call.
 	 */
 	static class ServiceAccountEnabled extends AllNestedConditions {
 

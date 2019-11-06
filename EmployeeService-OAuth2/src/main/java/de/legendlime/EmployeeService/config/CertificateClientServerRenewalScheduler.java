@@ -113,9 +113,11 @@ public class CertificateClientServerRenewalScheduler {
 			
 			if (restTemplateBean != null) {
 				restTemplateBean.renew(restTemplateBuilder, clientHttpRequestFactoryBean);
+				logger.info("Renewed SSL context for RestTemplate");
 			}
 			if (oauth2RestTemplateBean != null) {
 				oauth2RestTemplateBean.renew(clientHttpRequestFactoryBean, details);
+				logger.info("Renewed SSL context for OAuth2RestTemplate");
 			}
 			if (VaultCertificateUtil.getExpires() > 0L) {
 				logger.info("Scheduled next certificate renewal date: {}", new Date(VaultCertificateUtil.getExpires()));
