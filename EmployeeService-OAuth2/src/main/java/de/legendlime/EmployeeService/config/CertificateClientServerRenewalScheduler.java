@@ -110,13 +110,7 @@ public class CertificateClientServerRenewalScheduler {
 			keyStoreBean.renew(certificateBundleBean);
 			trustStoreBean.renew(certificateBundleBean);
 			clientHttpRequestFactoryBean.renew(keyStoreBean, trustStoreBean);
-			
-			try {
-				logger.debug("SSL certificate: {}", sslStoreProviderBean.getKeyStore().getCertificate("vault").toString());
-			} catch (Exception e) {
-				logger.error("Exception: ", e);
-			}
-			
+						
 			if (restTemplateBean != null) {
 				restTemplateBean.renew(restTemplateBuilder, clientHttpRequestFactoryBean);
 				logger.info("Renewed SSL context for RestTemplate");
@@ -125,6 +119,15 @@ public class CertificateClientServerRenewalScheduler {
 				oauth2RestTemplateBean.renew(clientHttpRequestFactoryBean, details);
 				logger.info("Renewed SSL context for OAuth2RestTemplate");
 			}
+			
+			sslStoreProviderBean.renew(keyStoreBean, trustStoreBean);
+			
+			try {
+				logger.debug("SSL certificate: {}", sslStoreProviderBean.getKeyStore().getCertificate("vault").toString());
+			} catch (Exception e) {
+				logger.error("Exception: ", e);
+			}
+
 			if (VaultCertificateUtil.getExpires() > 0L) {
 				logger.info("Scheduled next certificate renewal date: {}", new Date(VaultCertificateUtil.getExpires()));
 				executeCertificateRenewalTask(VaultCertificateUtil.getExpires());

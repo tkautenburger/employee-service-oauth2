@@ -141,12 +141,13 @@ security:
 
 logging:
   level:
+    de.legendlime: DEBUG
     io.opentracing.contrib: error
+    io.jaegertracing: error
     org:
       springframework:
         boot:
           autoconfigure:
             logging: INFO
         security: INFO
-      legendlime: INFO
       root: INFO  
