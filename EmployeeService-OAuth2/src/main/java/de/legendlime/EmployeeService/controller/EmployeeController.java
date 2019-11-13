@@ -58,14 +58,7 @@ public class EmployeeController {
 		return repo.findAll();
 	}
 	
-	// This method is for test purposes only
-	@GetMapping(value = "/department/{id}", 
-			    produces = MediaType.APPLICATION_JSON_VALUE)
-	public Department getDepartment(@PathVariable(name = "id", required = true) Long id) {
-		return this.getDept(id);
-	}
-
-	@GetMapping(value = "/employee/{id}", 
+	@GetMapping(value = "/employees/{id}", 
 			    produces = MediaType.APPLICATION_JSON_VALUE)
 	public Employee getSingle(@PathVariable(name = "id", required = true) Long id) {
 
@@ -83,7 +76,7 @@ public class EmployeeController {
 		return e;
 	}
 
-	@PostMapping(value = "/employee", 
+	@PostMapping(value = "/employees", 
 			     consumes = MediaType.APPLICATION_JSON_VALUE, 
 			     produces = MediaType.APPLICATION_JSON_VALUE)
 	public Employee create(@Valid @RequestBody EmployeeDTO emp) {
@@ -101,7 +94,7 @@ public class EmployeeController {
 		return repo.save(persistentEmp);
 	}
 
-	@PutMapping(value = "/employee/{id}", 
+	@PutMapping(value = "/employees/{id}", 
 			    consumes = MediaType.APPLICATION_JSON_VALUE, 
 			    produces = MediaType.APPLICATION_JSON_VALUE)
 	public Employee update(@Valid @RequestBody EmployeeDTO emp, 
@@ -118,7 +111,7 @@ public class EmployeeController {
 		return repo.save(e);
 	}
 	
-	@DeleteMapping(value = "/employee/{id}")
+	@DeleteMapping(value = "/employees/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public ResponseEntity<?> delete(@PathVariable(name = "id", required = true) Long id) {
 
