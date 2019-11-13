@@ -37,7 +37,7 @@ public class EmployeeController {
 	private final static String SERVICE_HOST = "department-service-oauth2";
 	private final static String URI = "https://" + 
 	                            SERVICE_HOST + ":" +
-			                    SERVICE_PORT + "/v1/department/{deptId}";
+			                    SERVICE_PORT + "/v1/departments/{deptId}";
 	
 	private final static String NOT_FOUND = "Employee not found, ID: ";
 	private final static String NOT_NULL = "Employee cannot be null";
