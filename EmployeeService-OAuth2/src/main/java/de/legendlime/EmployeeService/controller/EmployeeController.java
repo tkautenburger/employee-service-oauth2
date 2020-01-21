@@ -7,6 +7,9 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,6 +31,7 @@ import de.legendlime.EmployeeService.domain.Department;
 import de.legendlime.EmployeeService.domain.Employee;
 import de.legendlime.EmployeeService.domain.EmployeeDTO;
 import de.legendlime.EmployeeService.repository.EmployeeRepository;
+import io.opentracing.Tracer;
 
 @RestController
 @RequestMapping(value = "v1")
@@ -50,6 +54,12 @@ public class EmployeeController {
 	
     @Autowired
     private OAuth2RestTemplateBean oauth2RestTemplateBean;
+
+	@Autowired
+	Tracer tracer;
+
+	@Autowired
+	private ApplicationContext applicationContext;
 
 	@GetMapping(value = "/employees", 
 			    produces = MediaType.APPLICATION_JSON_VALUE)
@@ -134,7 +144,17 @@ public class EmployeeController {
     }
 
 	public Department getDept(Long deptId) {
-        ResponseEntity<Department> restExchange =
+		String traceId;
+		if (tracer.activeSpan() != null)
+			traceId = tracer.activeSpan().context().toTraceId();
+		else
+			traceId = tracer.buildSpan(applicationContext.getId()).start().context().toTraceId();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("x-trace-id", traceId);
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+
+		ResponseEntity<Department> restExchange =
                 oauth2RestTemplateBean.getoAuth2RestTemplate()
                   .exchange(URI, HttpMethod.GET, null, Department.class, deptId);
         return restExchange.getBody();
