@@ -39,13 +39,14 @@ public class ResponseLoggingFilter implements Filter {
 			throws IOException, ServletException {
 
 		HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-
+		boolean buildSpan = false;
 		String traceId = httpServletRequest.getHeader(TRACE_ID);
 		if (traceId == null || traceId.isEmpty()) {
 			if (tracer.activeSpan() != null)
 				traceId = tracer.activeSpan().context().toTraceId();
 			else {
 				traceId = tracer.buildSpan(applicationContext.getId()).start().context().toTraceId();
+				buildSpan = true;
 			}
 		}
 		logger.info("Incoming Trace-ID: {}", traceId);
@@ -55,7 +56,7 @@ public class ResponseLoggingFilter implements Filter {
 		if (httpServletResponse.getHeader(TRACE_ID) == null)
 			httpServletResponse.addHeader(TRACE_ID, traceId);
 
-		if (tracer.activeSpan() != null)
+		if (buildSpan && tracer.activeSpan() != null)
 			tracer.activeSpan().finish();
 		
 		// insert response logging here

@@ -144,6 +144,7 @@ public class EmployeeController {
     }
 
 	public Department getDept(Long deptId) {
+    /*
 		String traceId;
 		if (tracer.activeSpan() != null)
 			traceId = tracer.activeSpan().context().toTraceId();
@@ -153,14 +154,14 @@ public class EmployeeController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("x-trace-id", traceId);
 		HttpEntity<String> entity = new HttpEntity<>(headers);
-
+	*/
 		ResponseEntity<Department> restExchange =
                 oauth2RestTemplateBean.getoAuth2RestTemplate()
-                  .exchange(URI, HttpMethod.GET, entity, Department.class, deptId);
-
+                  .exchange(URI, HttpMethod.GET, null, Department.class, deptId);
+    /*
 		if (tracer.activeSpan() != null)
 			tracer.activeSpan().finish();
-
+    */
         return restExchange.getBody();
 	}
 }
