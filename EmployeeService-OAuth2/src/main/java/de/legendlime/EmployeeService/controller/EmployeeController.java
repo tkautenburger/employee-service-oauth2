@@ -156,7 +156,7 @@ public class EmployeeController {
 
 		ResponseEntity<Department> restExchange =
                 oauth2RestTemplateBean.getoAuth2RestTemplate()
-                  .exchange(URI, HttpMethod.GET, null, Department.class, deptId);
+                  .exchange(URI, HttpMethod.GET, entity, Department.class, deptId);
 
 		if (tracer.activeSpan() != null)
 			tracer.activeSpan().finish();
