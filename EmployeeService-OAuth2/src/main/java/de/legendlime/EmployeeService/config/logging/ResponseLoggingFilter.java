@@ -14,15 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import io.opentracing.Tracer;
 
-@Component
+
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class ResponseLoggingFilter implements Filter {
 
@@ -30,12 +28,14 @@ public class ResponseLoggingFilter implements Filter {
 	public static final String RESPONSE_PREFIX = "RESPONSE : ";
 	private static final Logger logger = LoggerFactory.getLogger(ResponseLoggingFilter.class);
 
-	@Autowired
-	Tracer tracer;
-
-	@Autowired
+	private Tracer tracer;
 	private ApplicationContext applicationContext;
 	
+	public ResponseLoggingFilter(Tracer tracer, ApplicationContext applicationContext) {
+		this.tracer = tracer;
+		this.applicationContext = applicationContext;
+	}
+
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
 			throws IOException, ServletException {
