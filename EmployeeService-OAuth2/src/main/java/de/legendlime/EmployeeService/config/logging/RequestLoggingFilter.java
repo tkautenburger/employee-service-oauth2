@@ -124,6 +124,7 @@ public class RequestLoggingFilter implements Filter {
 	protected String getMessagePayload(HttpServletRequest request) {
 		ContentCachingRequestWrapper wrapper =
 				WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
+		
 		if (wrapper != null) {
 			byte[] buf = wrapper.getContentAsByteArray();
 			if (buf.length > 0) {
