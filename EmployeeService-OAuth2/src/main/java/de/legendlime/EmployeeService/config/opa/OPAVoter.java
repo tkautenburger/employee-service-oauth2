@@ -55,6 +55,8 @@ public class OPAVoter implements AccessDecisionVoter<Object> {
         input.put("method", filter.getRequest().getMethod());
         input.put("path", path);
         input.put("headers", headers);
+        
+        // TODO: change this section to implement fine grained access control based on data filters
 
         HttpEntity<?> request = new HttpEntity<>(new OPADataRequest(input));
         OPADataResponse response = restTemplateBean.getRestTemplate()
