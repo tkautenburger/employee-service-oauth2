@@ -15,4 +15,5 @@ java -Dspring.profiles.active=$PROFILE \
      -Dlegendlime.https-port=$HTTPS_SERVER_PORT \
      -Djavax.net.ssl.trustStore=$TRUST_STORE_PATH \
      -Djavax.net.ssl.trustStorePassword=$TRUST_STORE_PASSWORD \
+	 $HEAP_OPTIONS \
 	 -jar /usr/local/employeeservice/EmployeeService-OAuth2-0.1-DRAFT.jar
