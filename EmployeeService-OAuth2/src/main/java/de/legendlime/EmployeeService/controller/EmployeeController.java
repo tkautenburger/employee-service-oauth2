@@ -3,13 +3,14 @@ package de.legendlime.EmployeeService.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +32,9 @@ import de.legendlime.EmployeeService.domain.Department;
 import de.legendlime.EmployeeService.domain.Employee;
 import de.legendlime.EmployeeService.domain.EmployeeDTO;
 import de.legendlime.EmployeeService.repository.EmployeeRepository;
+import de.legendlime.EmployeeService.config.logging.ResponseLoggingFilter;
+import de.legendlime.EmployeeService.messaging.AuditRecord;
+import de.legendlime.EmployeeService.messaging.AuditSourceBean;
 import io.opentracing.Tracer;
 
 @RestController
@@ -61,16 +65,38 @@ public class EmployeeController {
 	@Autowired
 	private ApplicationContext applicationContext;
 
+	@Autowired
+	AuditSourceBean audit;
+
 	@GetMapping(value = "/employees", 
 			    produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Employee> getAll() {
+	public List<Employee> getAll(HttpServletRequest request, HttpServletResponse response) {
+
+		AuditRecord record = new AuditRecord();
+		record.setMethod("GET");
+		record.setUri(request.getRequestURI());
+		record.setClient(request.getRemoteAddr());
+		
+		String user = request.getRemoteUser();
+		if (user != null) {
+			record.setUser(user);
+		}
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			record.setSessionId(session.getId());
+		}		
+		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
+		record.setObjectType(Employee.class.getName());
+		record.setObjectId(0L);
+		audit.publishAuditMessage(record);
 
 		return repo.findAll();
 	}
 	
 	@GetMapping(value = "/employees/{id}", 
 			    produces = MediaType.APPLICATION_JSON_VALUE)
-	public Employee getSingle(@PathVariable(name = "id", required = true) Long id) {
+	public Employee getSingle(@PathVariable(name = "id", required = true) Long id,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		Optional<Employee> empOpt = repo.findById(id);
 		if (!empOpt.isPresent())
@@ -83,13 +109,33 @@ public class EmployeeController {
 			e.setDeptDesc(d.getDescription());
 			e.setDeptPodServed(d.getPodServed());
 		}
+		
+		AuditRecord record = new AuditRecord();
+		record.setMethod("GET");
+		record.setUri(request.getRequestURI());
+		record.setClient(request.getRemoteAddr());
+		
+		String user = request.getRemoteUser();
+		if (user != null) {
+			record.setUser(user);
+		}
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			record.setSessionId(session.getId());
+		}		
+		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
+		record.setObjectType(Employee.class.getName());
+		record.setObjectId(e.getEmpId());
+		audit.publishAuditMessage(record);
+
 		return e;
 	}
 
 	@PostMapping(value = "/employees", 
 			     consumes = MediaType.APPLICATION_JSON_VALUE, 
 			     produces = MediaType.APPLICATION_JSON_VALUE)
-	public Employee create(@Valid @RequestBody EmployeeDTO emp) {
+	public Employee create(@Valid @RequestBody EmployeeDTO emp,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		if (emp == null)
 			throw new IllegalArgumentException(NOT_NULL);
@@ -101,6 +147,24 @@ public class EmployeeController {
 		persistentEmp.setLastname(emp.getLastname());
 		persistentEmp.setDeptId(emp.getDeptId());
 		
+		AuditRecord record = new AuditRecord();
+		record.setMethod("CREATE");
+		record.setUri(request.getRequestURI());
+		record.setClient(request.getRemoteAddr());
+		
+		String user = request.getRemoteUser();
+		if (user != null) {
+			record.setUser(user);
+		}
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			record.setSessionId(session.getId());
+		}		
+		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
+		record.setObjectType(Employee.class.getName());
+		record.setObjectId(persistentEmp.getEmpId());
+		audit.publishAuditMessage(record);
+
 		return repo.save(persistentEmp);
 	}
 
@@ -108,7 +172,8 @@ public class EmployeeController {
 			    consumes = MediaType.APPLICATION_JSON_VALUE, 
 			    produces = MediaType.APPLICATION_JSON_VALUE)
 	public Employee update(@Valid @RequestBody EmployeeDTO emp, 
-			               @PathVariable(name = "id", required = true) Long id) {
+			               @PathVariable(name = "id", required = true) Long id,
+			               HttpServletRequest request, HttpServletResponse response) {
 		
 		Optional<Employee> empOpt = repo.findById(id);
 		if (!empOpt.isPresent())
@@ -118,17 +183,56 @@ public class EmployeeController {
 		e.setFirstname(emp.getFirstname());
 		e.setLastname(emp.getLastname());
 		e.setDeptId(emp.getDeptId());
+
+		AuditRecord record = new AuditRecord();
+		record.setMethod("UPDATE");
+		record.setUri(request.getRequestURI());
+		record.setClient(request.getRemoteAddr());
+		
+		String user = request.getRemoteUser();
+		if (user != null) {
+			record.setUser(user);
+		}
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			record.setSessionId(session.getId());
+		}		
+		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
+		record.setObjectType(Employee.class.getName());
+		record.setObjectId(e.getEmpId());
+		audit.publishAuditMessage(record);
+
 		return repo.save(e);
 	}
 	
 	@DeleteMapping(value = "/employees/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public ResponseEntity<?> delete(@PathVariable(name = "id", required = true) Long id) {
+	public ResponseEntity<?> delete(@PathVariable(name = "id", required = true) Long id,
+			HttpServletRequest request, HttpServletResponse response) {
 
 		Optional<Employee> empOpt = repo.findById(id);
 		if (!empOpt.isPresent())
 			throw new ResourceNotFoundException(NOT_FOUND + id);
 		repo.delete(empOpt.get());
+		
+		AuditRecord record = new AuditRecord();
+		record.setMethod("DELETE");
+		record.setUri(request.getRequestURI());
+		record.setClient(request.getRemoteAddr());
+		
+		String user = request.getRemoteUser();
+		if (user != null) {
+			record.setUser(user);
+		}
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			record.setSessionId(session.getId());
+		}		
+		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
+		record.setObjectType(Employee.class.getName());
+		record.setObjectId(empOpt.get().getEmpId());
+		audit.publishAuditMessage(record);
+
 		return ResponseEntity.ok().build();
 	}
 	

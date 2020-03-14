@@ -2,6 +2,8 @@ package de.legendlime.EmployeeService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import de.legendlime.EmployeeService.domain.Employee;
 
 @SpringBootApplication
+@EnableBinding(Source.class)
 public class EmployeeServiceApplication {
 	
 	public static void main(String[] args) {
