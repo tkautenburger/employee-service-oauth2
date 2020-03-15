@@ -10,7 +10,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -63,33 +62,13 @@ public class EmployeeController {
 	Tracer tracer;
 
 	@Autowired
-	private ApplicationContext applicationContext;
-
-	@Autowired
 	AuditSourceBean audit;
 
 	@GetMapping(value = "/employees", 
 			    produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Employee> getAll(HttpServletRequest request, HttpServletResponse response) {
 
-		AuditRecord record = new AuditRecord();
-		record.setMethod("GET");
-		record.setUri(request.getRequestURI());
-		record.setClient(request.getRemoteAddr());
-		
-		String user = request.getRemoteUser();
-		if (user != null) {
-			record.setUser(user);
-		}
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			record.setSessionId(session.getId());
-		}		
-		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
-		record.setObjectType(Employee.class.getName());
-		record.setObjectId(0L);
-		audit.publishAuditMessage(record);
-
+		audit.publishAuditMessage(auditHelper("GET", null, request, response));
 		return repo.findAll();
 	}
 	
@@ -109,25 +88,7 @@ public class EmployeeController {
 			e.setDeptDesc(d.getDescription());
 			e.setDeptPodServed(d.getPodServed());
 		}
-		
-		AuditRecord record = new AuditRecord();
-		record.setMethod("GET");
-		record.setUri(request.getRequestURI());
-		record.setClient(request.getRemoteAddr());
-		
-		String user = request.getRemoteUser();
-		if (user != null) {
-			record.setUser(user);
-		}
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			record.setSessionId(session.getId());
-		}		
-		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
-		record.setObjectType(Employee.class.getName());
-		record.setObjectId(e.getEmpId());
-		audit.publishAuditMessage(record);
-
+		audit.publishAuditMessage(auditHelper("GET", e, request, response));
 		return e;
 	}
 
@@ -147,23 +108,7 @@ public class EmployeeController {
 		persistentEmp.setLastname(emp.getLastname());
 		persistentEmp.setDeptId(emp.getDeptId());
 		
-		AuditRecord record = new AuditRecord();
-		record.setMethod("CREATE");
-		record.setUri(request.getRequestURI());
-		record.setClient(request.getRemoteAddr());
-		
-		String user = request.getRemoteUser();
-		if (user != null) {
-			record.setUser(user);
-		}
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			record.setSessionId(session.getId());
-		}		
-		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
-		record.setObjectType(Employee.class.getName());
-		record.setObjectId(persistentEmp.getEmpId());
-		audit.publishAuditMessage(record);
+		audit.publishAuditMessage(auditHelper("CREATE", persistentEmp, request, response));
 
 		return repo.save(persistentEmp);
 	}
@@ -184,23 +129,7 @@ public class EmployeeController {
 		e.setLastname(emp.getLastname());
 		e.setDeptId(emp.getDeptId());
 
-		AuditRecord record = new AuditRecord();
-		record.setMethod("UPDATE");
-		record.setUri(request.getRequestURI());
-		record.setClient(request.getRemoteAddr());
-		
-		String user = request.getRemoteUser();
-		if (user != null) {
-			record.setUser(user);
-		}
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			record.setSessionId(session.getId());
-		}		
-		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
-		record.setObjectType(Employee.class.getName());
-		record.setObjectId(e.getEmpId());
-		audit.publishAuditMessage(record);
+		audit.publishAuditMessage(auditHelper("UPDATE", e, request, response));
 
 		return repo.save(e);
 	}
@@ -214,24 +143,7 @@ public class EmployeeController {
 		if (!empOpt.isPresent())
 			throw new ResourceNotFoundException(NOT_FOUND + id);
 		repo.delete(empOpt.get());
-		
-		AuditRecord record = new AuditRecord();
-		record.setMethod("DELETE");
-		record.setUri(request.getRequestURI());
-		record.setClient(request.getRemoteAddr());
-		
-		String user = request.getRemoteUser();
-		if (user != null) {
-			record.setUser(user);
-		}
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			record.setSessionId(session.getId());
-		}		
-		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
-		record.setObjectType(Employee.class.getName());
-		record.setObjectId(empOpt.get().getEmpId());
-		audit.publishAuditMessage(record);
+		audit.publishAuditMessage(auditHelper("DELETE", empOpt.get(), request, response));
 
 		return ResponseEntity.ok().build();
 	}
@@ -267,5 +179,33 @@ public class EmployeeController {
 			tracer.activeSpan().finish();
     */
         return restExchange.getBody();
+	}
+	
+	private AuditRecord auditHelper(String method, Employee obj, 
+			HttpServletRequest request, HttpServletResponse response) {
+		
+		AuditRecord record = new AuditRecord();
+		
+		record.setNodeName(System.getenv("NODE_NAME"));
+		record.setHostName(System.getenv("HOSTNAME"));
+		record.setPodName(System.getenv("POD_NAME"));
+		
+		record.setMethod(method);
+		record.setUri(request.getRequestURI());
+		record.setClient(request.getRemoteAddr());
+		
+		String user = request.getRemoteUser();
+		if (user != null) {
+			record.setUser(user);
+		}
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			record.setSessionId(session.getId());
+		}		
+		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
+		record.setObjectType(obj.getClass().getName());
+		record.setObjectId(obj.getEmpId());
+		
+		return record;
 	}
 }
