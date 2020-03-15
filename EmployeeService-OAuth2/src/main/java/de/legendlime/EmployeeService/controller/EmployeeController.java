@@ -1,5 +1,6 @@
 package de.legendlime.EmployeeService.controller;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -186,6 +187,9 @@ public class EmployeeController {
 		
 		AuditRecord record = new AuditRecord();
 		
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		record.setTimestamp(timestamp.toInstant().toString());
+		
 		record.setNodeName(System.getenv("NODE_NAME"));
 		record.setHostName(System.getenv("HOSTNAME"));
 		record.setPodName(System.getenv("POD_NAME"));
@@ -204,7 +208,8 @@ public class EmployeeController {
 		}		
 		record.setTraceId(response.getHeader(ResponseLoggingFilter.TRACE_ID));
 		record.setObjectType(obj.getClass().getName());
-		record.setObjectId(obj.getEmpId());
+		if (obj != null)
+			record.setObjectId(obj.getEmpId());
 		
 		return record;
 	}
