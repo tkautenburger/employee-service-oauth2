@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean;
 import de.legendlime.EmployeeService.domain.Department;
@@ -211,6 +212,17 @@ public class EmployeeController {
 			record.setObjectType(obj.getClass().getName());
 			record.setObjectId(obj.getEmpId());
 		}	
+		if ("CREATE".equalsIgnoreCase(method) || "UPDATE".equalsIgnoreCase(method)) {
+			//Creating the ObjectMapper object
+		    ObjectMapper mapper = new ObjectMapper();
+		    //Converting the Object to JSONString
+			try {
+				record.setJsonObject(mapper.writeValueAsString(obj));
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
 		return record;
 	}
 }
