@@ -5,6 +5,7 @@ import java.lang.management.ManagementFactory;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Date;
@@ -109,6 +110,7 @@ public class CertificateClientServerRenewalScheduler {
 	/**
 	 *  Renew the beans for the certificate bundle, key store, trust store and the 
 	 *  server's SSL store and schedule the next certificate renewal
+	 * @throws UnrecoverableEntryException 
 	 */
 	
 	private void renewSslConfiguration() {
@@ -140,7 +142,7 @@ public class CertificateClientServerRenewalScheduler {
 				executeCertificateRenewalTask(VaultCertificateUtil.getExpires());
 			}
 		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException
-				| InterruptedException | KeyManagementException | UnrecoverableKeyException e) {
+				| InterruptedException | KeyManagementException | UnrecoverableEntryException e) {
 			logger.error("Renewing SSL store beans", e);
 			Thread.currentThread().interrupt();
 		}

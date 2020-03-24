@@ -12,7 +12,6 @@ server:
     # try this out, if it helps
     key-alias: vault
       
-
 spring:
 
 #--------------------------------------
@@ -20,10 +19,11 @@ spring:
 #--------------------------------------
 
   datasource:
+    # url: jdbc:h2:mem:demo
     url: jdbc:postgresql://demodb:5432/demo?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
-    # this configuration should go to vault
-    # username: 
-    # password: 
+    # this configuration comes from Vault
+    # username: <this is stored in vault>
+    # password: <this is stored in vault>
   jpa:
     properties:
       hibernate: 
@@ -44,8 +44,7 @@ spring:
         hostname: employee-service.default.svc.cluster.local
         port: 8083
         healthCheckPath: /actuator/health
-        healthCheckInterval: 20s
-
+        healthCheckInterval: 60s
 
 #--------------------------------------
 # Cloud Streams Kafka Configuration
@@ -69,6 +68,8 @@ spring:
                     binder:
                       zkNodes: kafka-zookeeper-0.kafka-zookeeper-headless.messaging.svc.cluster.local:2182
                       brokers: kafka-0.kafka-headless.messaging.svc.cluster.local:9092
+                      # SSL configuration requires to have truststore and keystore in file system thus Kafka in the current 
+                      # version does not provide a custom SSL context loader
 
 #--------------------------------------
 # Vault CA Configuration
@@ -82,7 +83,9 @@ pki:
   - employee-service.default.svc.cluster.local
   - employee-service-oauth2
   - employee-service-oauth2.default.svc.cluster.local
-  
+   # Redis URL to provide distributed lock
+  redis-url: redis://redis:6379
+ 
 legendlime:
 
 #--------------------------------------
@@ -91,7 +94,7 @@ legendlime:
 
   ratelimit:
     # maximum average request rate per second
-    average: 50d
+    average: 10d
 
 #--------------------------------------
 # OPA Policy Based Authorization 
@@ -99,7 +102,7 @@ legendlime:
   opa:
     enabled: true
     opa-url: https://opa:8181/v1/data/http/authz/allow
-    
+
 #--------------------------------------
 # Tracing Configuration
 #--------------------------------------
@@ -125,6 +128,7 @@ rest:
       allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
       max-age: 3600
 
+#    issuer-uri: https://em-demo/auth/realms/Demo
     issuer-uri: https://keycloak:8443/auth/realms/Demo
 
 #--------------------------------------
@@ -151,8 +155,7 @@ security:
 
     client:
       client-id: employee-service
-      # This must go to Vault
-      client-secret: 3a8cac7a-3136-4a2b-9b71-ae425b9ebfd4
+      # client-secret: <this is stored in vault>
       user-authorization-uri: ${rest.security.issuer-uri}/protocol/openid-connect/auth
       access-token-uri: ${rest.security.issuer-uri}/protocol/openid-connect/token
       scope: openid
@@ -164,13 +167,14 @@ security:
 
 logging:
   level:
-    de.legendlime: DEBUG
-    io.opentracing.contrib: error
-    io.jaegertracing: error
+    de.legendlime: INFO
+    io.jaegertracing: ERROR
+    io.opentracing: ERROR
     org:
       springframework:
         boot:
           autoconfigure:
             logging: INFO
         security: INFO
+        web.filter.CommonsRequestLoggingFilter: ERROR
       root: INFO  
