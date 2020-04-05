@@ -2,7 +2,6 @@ spring:
   application:
     name: EmployeeServiceOAuth2
 
-    
   cloud:
     consul:
       port: ${CONSUL_PORT}
@@ -15,7 +14,6 @@ spring:
         # getting consul ACL token from OS environment
         acl-token: ${CONSUL_EMPLOYEE_ACL_TOKEN}
 
-        
     vault:
       host: ${VAULT_SERVER}
       port: ${VAULT_PORT}
