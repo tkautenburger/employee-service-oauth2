@@ -185,4 +185,21 @@ logging:
             logging: INFO
         security: INFO
         web.filter.CommonsRequestLoggingFilter: ERROR
-      root: INFO  
+      root: INFO
+
+#--------------------------------------
+# Actuator Configuration
+#--------------------------------------
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  metrics:
+    export:
+      elastic: 
+        enabled: true
+        step: 15s
+        index: metrics
+        host: https://elasticsearch.monitoring.svc.cluster.local:9093
