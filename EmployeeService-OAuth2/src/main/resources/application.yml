@@ -200,6 +200,9 @@ management:
     export:
       elastic: 
         enabled: true
-        step: 15s
+        auto-create-index: false  # auto-create set _source mapping to disabled thus no values show up in elasticsearch
+        step: 1m
         index: metrics
-        host: https://elasticsearch.monitoring.svc.cluster.local:9093
+        user-name: elastic
+        password: changeme
+        host: https://elasticsearch.monitoring.svc.cluster.local:9200

@@ -36,10 +36,12 @@ import de.legendlime.EmployeeService.repository.EmployeeRepository;
 import de.legendlime.EmployeeService.config.logging.ResponseLoggingFilter;
 import de.legendlime.EmployeeService.messaging.AuditRecord;
 import de.legendlime.EmployeeService.messaging.AuditSourceBean;
+import io.micrometer.core.annotation.Timed;
 import io.opentracing.Tracer;
 
 @RestController
 @RequestMapping(value = "v1")
+@Timed
 public class EmployeeController {
 
 	private final static String SERVICE_PORT = "8090";
