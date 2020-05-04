@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.metrics.web.client.MetricsRestTemplateCustomizer;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Conditional;
@@ -21,15 +22,19 @@ import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean.Servic
 public class OAuth2RestTemplateBean {
 
 	private static final Logger LOG = LoggerFactory.getLogger(OAuth2RestTemplateBean.class);
+	// MetricsRestTemplateCustomizer needed to have HTTP client metrics via Micrometer library
+	private final MetricsRestTemplateCustomizer metricsRestTemplateCustomizer;
 
 	private Tracer jaegerTracer;
 	
 	private OAuth2RestTemplate oAuth2RestTemplate;
-
-	public OAuth2RestTemplateBean(Tracer tracer, ClientHttpRequestFactoryBean factoryBean, OAuth2ProtectedResourceDetails details) {
+	
+	public OAuth2RestTemplateBean(Tracer tracer, ClientHttpRequestFactoryBean factoryBean, 
+			OAuth2ProtectedResourceDetails details, MetricsRestTemplateCustomizer metricsRestTemplateCustomizer) {
 		
 		this.jaegerTracer = tracer;
 	    this.oAuth2RestTemplate = new OAuth2RestTemplate(details);
+	    this.metricsRestTemplateCustomizer = metricsRestTemplateCustomizer;
 
 	    LOG.info("Set Client Request Factory for OAuth2RestTemplate");
 	    oAuth2RestTemplate.setRequestFactory(factoryBean.getFactory());
@@ -37,6 +42,8 @@ public class OAuth2RestTemplateBean {
 
 	    oAuth2RestTemplate.getAccessToken();
 	    LOG.debug("Get access token for OAuth2RestTemplate");
+	    
+	    this.metricsRestTemplateCustomizer.customize(oAuth2RestTemplate);
 	}
 	
 
