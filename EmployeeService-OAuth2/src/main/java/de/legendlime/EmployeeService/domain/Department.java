@@ -59,7 +59,6 @@ public class Department implements Serializable{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (int) (deptId ^ (deptId >>> 32));
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
 
@@ -73,11 +72,6 @@ public class Department implements Serializable{
 			return false;
 		Department other = (Department) obj;
 		if (deptId != other.deptId)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
 			return false;
 		return true;
 	}
