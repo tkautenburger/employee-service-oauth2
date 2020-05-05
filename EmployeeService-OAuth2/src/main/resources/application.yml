@@ -52,14 +52,20 @@ spring:
  
     stream:
       bindings:
+        # this is to output any state change of the domain object
         output:
           destination: auditing
-          binder: kafka-out
+          binder: kafka-broker
+          content-type: application/json
+        # this is to update the cache for objects this service is interested in
+        input:
+          destination: auditing
+          binder: kafka-broker
           content-type: application/json
           group: auditGroup
       binders:   
-        kafka-out:
-          type: kafka
+        kafka:
+          type: kafka-broker
           environment:
             spring:
               cloud:
@@ -110,6 +116,14 @@ legendlime:
   opa:
     enabled: true
     opa-url: https://opa:8181/v1/data/http/authz/allow
+
+#--------------------------------------
+# Redis distributed caching
+#--------------------------------------
+  redis:
+    enabled: true
+    redis-server1: redis.infrastructure.svc.cluster.local
+    redis-port1: 6379
 
 #--------------------------------------
 # Tracing Configuration
