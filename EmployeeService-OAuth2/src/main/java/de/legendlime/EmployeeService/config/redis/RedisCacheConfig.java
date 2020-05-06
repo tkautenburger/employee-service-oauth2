@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisClusterConfiguration;
-import org.springframework.data.redis.connection.RedisNode;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -19,22 +18,10 @@ public class RedisCacheConfig {
 	@Bean
 	@ConditionalOnProperty(prefix = "legendlime.redis", name = "enabled", havingValue = "true")
 	public JedisConnectionFactory jedisConnectionFactory() {
-		RedisClusterConfiguration redisCluster = new RedisClusterConfiguration();
-		// for production environments use RedisClusterConfiguration instead of RedisStandaloneConfiguration
-		if (redisProperties.getRedisServer1() != null ) {
-			RedisNode node1 = new RedisNode(redisProperties.getRedisServer1(), redisProperties.getRedisPort1());
-			redisCluster.addClusterNode(node1);
-		}
-		if (redisProperties.getRedisServer2() != null) {
-			RedisNode node2 = new RedisNode(redisProperties.getRedisServer2(), redisProperties.getRedisPort2());
-			redisCluster.addClusterNode(node2);
-		}
-		if (redisProperties.getRedisServer3() != null) {
-			RedisNode node3 = new RedisNode(redisProperties.getRedisServer3(), redisProperties.getRedisPort3());
-			redisCluster.addClusterNode(node3);
-		}
-		redisCluster.setPassword(redisProperties.getPassword());
-		JedisConnectionFactory jedisConnFactory = new JedisConnectionFactory(redisCluster);
+		RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(
+				redisProperties.getRedisServer(), redisProperties.getRedisPort());
+		redisConfig.setPassword(redisProperties.getPassword());
+		JedisConnectionFactory jedisConnFactory = new JedisConnectionFactory(redisConfig);
 		return jedisConnFactory;
     }
 

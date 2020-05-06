@@ -14,12 +14,8 @@ public class RedisProperties {
 	
 	private boolean enabled = false;
 	
-	private String redisServer1 = DEFAULT_SERVER;
-	private int redisPort1 = DEFAULT_PORT;
-	private String redisServer2;
-	private int redisPort2 = DEFAULT_PORT;
-	private String redisServer3;
-	private int redisPort3 = DEFAULT_PORT;
+	private String redisServer = DEFAULT_SERVER;
+	private int redisPort = DEFAULT_PORT;
 	private String password;
 	
 	public boolean isEnabled() {
@@ -28,41 +24,17 @@ public class RedisProperties {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	public String getRedisServer1() {
-		return redisServer1;
+	public String getRedisServer() {
+		return redisServer;
 	}
-	public void setRedisServer1(String redisServer1) {
-		this.redisServer1 = redisServer1;
+	public void setRedisServer(String redisServer) {
+		this.redisServer = redisServer;
 	}
-	public int getRedisPort1() {
-		return redisPort1;
+	public int getRedisPort() {
+		return redisPort;
 	}
-	public void setRedisPort1(int redisPort1) {
-		this.redisPort1 = redisPort1;
-	}
-	public String getRedisServer2() {
-		return redisServer2;
-	}
-	public void setRedisServer2(String redisServer2) {
-		this.redisServer2 = redisServer2;
-	}
-	public int getRedisPort2() {
-		return redisPort2;
-	}
-	public void setRedisPort2(int redisPort2) {
-		this.redisPort2 = redisPort2;
-	}
-	public String getRedisServer3() {
-		return redisServer3;
-	}
-	public void setRedisServer3(String redisServer3) {
-		this.redisServer3 = redisServer3;
-	}
-	public int getRedisPort3() {
-		return redisPort3;
-	}
-	public void setRedisPort3(int redisPort3) {
-		this.redisPort3 = redisPort3;
+	public void setRedisPort(int redisPort) {
+		this.redisPort = redisPort;
 	}
 	public String getPassword() {
 		return password;
