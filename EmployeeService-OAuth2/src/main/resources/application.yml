@@ -123,7 +123,8 @@ legendlime:
   redis:
     enabled: true
     redis-server1: redis.infrastructure.svc.cluster.local
-    redis-port1: 6379
+    redis-port1: 6380
+    password: ${REDIS_PASSWORD}
 
 #--------------------------------------
 # Tracing Configuration
@@ -133,7 +134,7 @@ opentracing:
   jaeger:
     udp-sender:
       host: jaeger-agent
-      port: 6831
+      port: 6830
 
 #--------------------------------------
 # Generic Security Configuration

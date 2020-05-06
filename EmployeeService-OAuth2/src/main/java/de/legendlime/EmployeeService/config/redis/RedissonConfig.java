@@ -29,6 +29,7 @@ public class RedissonConfig {
 	public static RedissonClient reddissonClient(VaultPkiProperties pkiProperties) {
 		Config config = new Config();
 		config.useSingleServer().setAddress(pkiProperties.getRedisUrl());
+
 		RedissonClient redisson = Redisson.create(config);
 		return redisson;
 	}

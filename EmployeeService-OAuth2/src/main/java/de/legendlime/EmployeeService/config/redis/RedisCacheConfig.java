@@ -33,6 +33,7 @@ public class RedisCacheConfig {
 			RedisNode node3 = new RedisNode(redisProperties.getRedisServer3(), redisProperties.getRedisPort3());
 			redisCluster.addClusterNode(node3);
 		}
+		redisCluster.setPassword(redisProperties.getPassword());
 		JedisConnectionFactory jedisConnFactory = new JedisConnectionFactory(redisCluster);
 		return jedisConnFactory;
     }

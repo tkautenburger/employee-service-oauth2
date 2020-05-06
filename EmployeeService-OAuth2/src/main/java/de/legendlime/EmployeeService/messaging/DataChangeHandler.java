@@ -25,17 +25,18 @@ public class DataChangeHandler {
 			case "GET":
 				break;
 			case "CREATE":
-				LOG.info("department created");
+				LOG.info("department domain object created");
 				break;
 			case "UPDATE":
-				LOG.info("department updated");
+				LOG.info("department domain object updated");
 				repo.deleteDepartment(record.getObjectId());
 				break;
 			case "DELETE":
-				LOG.info("department deleted");
+				LOG.info("department domain object deleted");
 				repo.deleteDepartment(record.getObjectId());
 				break;
 			default:
+				LOG.info("unsupported method received");
 				// unknown action
 				break;
 			}

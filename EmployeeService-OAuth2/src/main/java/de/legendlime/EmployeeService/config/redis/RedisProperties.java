@@ -20,6 +20,7 @@ public class RedisProperties {
 	private int redisPort2 = DEFAULT_PORT;
 	private String redisServer3;
 	private int redisPort3 = DEFAULT_PORT;
+	private String password;
 	
 	public boolean isEnabled() {
 		return enabled;
@@ -62,6 +63,12 @@ public class RedisProperties {
 	}
 	public void setRedisPort3(int redisPort3) {
 		this.redisPort3 = redisPort3;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }
