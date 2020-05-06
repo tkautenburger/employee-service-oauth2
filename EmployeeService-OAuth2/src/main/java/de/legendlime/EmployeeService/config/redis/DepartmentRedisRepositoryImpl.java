@@ -12,7 +12,7 @@ import de.legendlime.EmployeeService.domain.Department;
 @Repository
 public class DepartmentRedisRepositoryImpl implements DepartmentRedisRepository {
 
-	private static final String HASH_NAME ="department";
+	private static final String HASH_NAME ="departments";
 
     private RedisTemplate<String, Department> redisTemplate;
     private HashOperations<String, Long, Department> hashOperations;
@@ -22,7 +22,7 @@ public class DepartmentRedisRepositoryImpl implements DepartmentRedisRepository 
     }
 
 	@Autowired
-    private DepartmentRedisRepositoryImpl(RedisTemplate<String, Department> redisTemplate) {
+    private DepartmentRedisRepositoryImpl(RedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
