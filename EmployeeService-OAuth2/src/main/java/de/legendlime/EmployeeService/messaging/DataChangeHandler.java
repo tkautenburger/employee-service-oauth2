@@ -18,7 +18,7 @@ public class DataChangeHandler {
 	@Autowired
 	DepartmentRedisRepository repo;
 	
-	@StreamListener("auditing")
+	@StreamListener(target = Sink.INPUT)
 	public void departmentChangeHandler(AuditRecord record) {
 		if (record.getObjectType().endsWith(OBJECT_NAME)) {
 			switch (record.getMethod()) {
