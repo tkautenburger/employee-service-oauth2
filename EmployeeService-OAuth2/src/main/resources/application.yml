@@ -1,7 +1,7 @@
 #--------------------------------------
 # Server Configuration
 #--------------------------------------
-
+  
 server:
   port: 8091
   ssl:
@@ -17,7 +17,7 @@ spring:
 #--------------------------------------
 # Persistence Configuration
 #--------------------------------------
-
+    
   datasource:
     # url: jdbc:h2:mem:demo
     url: jdbc:postgresql://demodb:5432/demo?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
@@ -98,7 +98,7 @@ pki:
   - employee-service-oauth2
   - employee-service-oauth2.default.svc.cluster.local
    # Redis URL to provide distributed lock
-  redis-url: redis://redis:6379
+  redis-url: rediss://redis.infrastructure.svc.cluster.local:6380
  
 legendlime:
 
@@ -123,7 +123,7 @@ legendlime:
   redis:
     enabled: true
     redis-server: redis.infrastructure.svc.cluster.local
-    redis-port: 6379
+    redis-port: 6380
     password: ${REDIS_PASSWORD}
 
 #--------------------------------------

@@ -23,9 +23,9 @@ public class RedisCacheConfig {
 		RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(
 				redisProperties.getRedisServer(), redisProperties.getRedisPort());
 		redisConfig.setPassword(redisProperties.getPassword());
+		
 		// use TLS protocol for Redis connection
 		JedisClientConfiguration jedisConfig = JedisClientConfiguration.builder().useSsl().build(); 
-
 		JedisConnectionFactory jedisConnFactory = new JedisConnectionFactory(redisConfig, jedisConfig);
 		return jedisConnFactory;
     }
