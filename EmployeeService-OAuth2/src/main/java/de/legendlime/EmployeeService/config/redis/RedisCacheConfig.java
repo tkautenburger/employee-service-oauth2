@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -18,10 +19,14 @@ public class RedisCacheConfig {
 	@Bean
 	@ConditionalOnProperty(prefix = "legendlime.redis", name = "enabled", havingValue = "true")
 	public JedisConnectionFactory jedisConnectionFactory() {
+		// build stand alone Redis configuration
 		RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(
 				redisProperties.getRedisServer(), redisProperties.getRedisPort());
 		redisConfig.setPassword(redisProperties.getPassword());
-		JedisConnectionFactory jedisConnFactory = new JedisConnectionFactory(redisConfig);
+		// use TLS protocol for Redis connection
+		JedisClientConfiguration jedisConfig = JedisClientConfiguration.builder().useSsl().build(); 
+
+		JedisConnectionFactory jedisConnFactory = new JedisConnectionFactory(redisConfig, jedisConfig);
 		return jedisConnFactory;
     }
 
