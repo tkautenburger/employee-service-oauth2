@@ -23,6 +23,7 @@ public class DataChangeHandler {
 		if (record.getObjectType().endsWith(OBJECT_NAME)) {
 			switch (record.getMethod()) {
 			case "GET":
+				// do nothing
 				break;
 			case "CREATE":
 				LOG.info("department domain object created");

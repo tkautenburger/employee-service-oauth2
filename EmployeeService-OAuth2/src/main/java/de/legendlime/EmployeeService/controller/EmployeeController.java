@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.legendlime.EmployeeService.config.logging.ResponseLoggingFilter;
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean;
 import de.legendlime.EmployeeService.config.redis.DepartmentRedisRepository;
+import de.legendlime.EmployeeService.config.redis.RedisProperties;
 import de.legendlime.EmployeeService.domain.Department;
 import de.legendlime.EmployeeService.domain.Employee;
 import de.legendlime.EmployeeService.domain.EmployeeDTO;
@@ -69,9 +70,17 @@ public class EmployeeController {
 
 	@Autowired
 	AuditSourceBean audit;
+	
+	@Autowired
+	RedisProperties redisProperties;
 
 	@Autowired
 	DepartmentRedisRepository redisRepository;
+
+	
+	/*--------------------------------*
+	 * Controller actions             *
+	 *--------------------------------*/
 
 	@GetMapping(value = "/employees", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Employee> getAll(HttpServletRequest request, HttpServletResponse response) {
@@ -149,17 +158,11 @@ public class EmployeeController {
 
 		return ResponseEntity.ok().build();
 	}
-
-	@GetMapping("/getConfigFromVault")
-	public String getConfigFromProperty() throws JsonProcessingException {
-		return "Datasource Username: " + dsProperties.getUsername() + " - Datasource Password: "
-				+ dsProperties.getPassword();
-	}
-
-	@GetMapping("/hello")
-	public String hello() {
-		return "Hello from Spring Boot!";
-	}
+	
+	
+	/*--------------------------------*
+	 * Downstream REST client methods *
+	 *--------------------------------*/
 
 	public Department getDept(Long deptId) {
 
@@ -179,24 +182,42 @@ public class EmployeeController {
 		return dept;
 	}
 
+	
+	/*--------------------------------*
+	 * Caching methods                *
+	 *--------------------------------*/
+
 	private Department checkRedisCache(long deptId) {
-		try {
-			return redisRepository.findDepartment(deptId);
-		} catch (Exception e) {
-			LOG.error("Error encountered while trying to retrieve department {} check Redis Cache.  Exception {}",
-					deptId, e);
+		// if caching is enabled, try to find the downstream object from Redis cache
+		if (redisProperties.isEnabled()) {
+			try {
+				return redisRepository.findDepartment(deptId);
+			} catch (Exception e) {
+				LOG.error("Error while trying to retrieve department {} from Redis.  Exception {}",
+						deptId, e);
+				return null;
+			}
+		} else {
 			return null;
 		}
 	}
 
 	private void cacheDepartmentObject(Department dept) {
-		try {
-			redisRepository.saveDepartment(dept);
-		} catch (Exception e) {
-			LOG.error("Unable to cache department object with ID {} in Redis. Exception {}", dept.getDeptId(), e);
+		// if caching is enabled, store the just received object in Redis cache
+		if (redisProperties.isEnabled()) {
+			try {
+				redisRepository.saveDepartment(dept);
+			} catch (Exception e) {
+				LOG.error("Unable to cache department object with ID {} in Redis. Exception {}", 
+						dept.getDeptId(), e);
+			}
 		}
 	}
 
+	
+	/*--------------------------------*
+	 * Auditing methods               *
+	 *--------------------------------*/
 	private AuditRecord auditHelper(String method, Employee obj, HttpServletRequest request,
 			HttpServletResponse response) {
 
