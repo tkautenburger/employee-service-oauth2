@@ -20,7 +20,7 @@ public class DataChangeHandler {
 	
 	@StreamListener(target = Sink.INPUT)
 	public void departmentChangeHandler(AuditRecord record) {
-		if (record.getObjectType().endsWith(OBJECT_NAME)) {
+		if (record.getObjectType() != null && record.getObjectType().endsWith(OBJECT_NAME)) {
 			switch (record.getMethod()) {
 			case "GET":
 				// do nothing
