@@ -7,7 +7,7 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.cloud.stream.messaging.Sink;
 
-import de.legendlime.EmployeeService.config.redis.DepartmentRedisRepository;
+import de.legendlime.EmployeeService.repository.DepartmentRedisRepository;
 
 @EnableBinding(Sink.class)
 public class DataChangeHandler {

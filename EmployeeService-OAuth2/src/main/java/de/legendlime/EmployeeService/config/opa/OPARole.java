@@ -4,6 +4,11 @@ public class OPARole {
 	
 	private String role;
 
+	public OPARole(String role) {
+		super();
+		this.role = role;
+	}
+
 	public String getRole() {
 		return role;
 	}

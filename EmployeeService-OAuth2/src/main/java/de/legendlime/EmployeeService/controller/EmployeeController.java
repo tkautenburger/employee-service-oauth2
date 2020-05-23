@@ -1,6 +1,7 @@
 package de.legendlime.EmployeeService.controller;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,13 +33,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.legendlime.EmployeeService.config.logging.ResponseLoggingFilter;
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean;
-import de.legendlime.EmployeeService.config.redis.DepartmentRedisRepository;
+import de.legendlime.EmployeeService.config.opa.OPARole;
 import de.legendlime.EmployeeService.config.redis.RedisProperties;
+import de.legendlime.EmployeeService.domain.CachedDepartment;
 import de.legendlime.EmployeeService.domain.Department;
 import de.legendlime.EmployeeService.domain.Employee;
 import de.legendlime.EmployeeService.domain.EmployeeDTO;
 import de.legendlime.EmployeeService.messaging.AuditRecord;
 import de.legendlime.EmployeeService.messaging.AuditSourceBean;
+import de.legendlime.EmployeeService.repository.DepartmentRedisRepository;
 import de.legendlime.EmployeeService.repository.EmployeeRepository;
 import io.micrometer.core.annotation.Timed;
 import io.opentracing.Tracer;
@@ -176,9 +179,17 @@ public class EmployeeController {
 		ResponseEntity<Department> restExchange = oauth2RestTemplateBean.getoAuth2RestTemplate().exchange(URI,
 				HttpMethod.GET, null, Department.class, deptId);
 		dept = restExchange.getBody();
-		if (dept != null)
-			cacheDepartmentObject(dept);
-		
+		if (dept != null) {
+			// get authorities header and build role list
+			List<String> authorities = restExchange.getHeaders().get("authorities");
+			if (authorities != null) {
+				List<OPARole> roles = new ArrayList<>();
+				for (String authority : authorities) {
+					roles.add(new OPARole(authority));
+				}
+				cacheDepartmentObject(dept, roles);
+			}
+		}
 		return dept;
 	}
 
@@ -191,7 +202,9 @@ public class EmployeeController {
 		// if caching is enabled, try to find the downstream object from Redis cache
 		if (redisProperties.isEnabled()) {
 			try {
-				return redisRepository.findDepartment(deptId);
+				CachedDepartment cDept = redisRepository.findDepartment(deptId);
+				// TODO: check here the authorities
+				return cDept.getDepartment();
 			} catch (Exception e) {
 				LOG.error("Error while trying to retrieve department {} from Redis.  Exception {}",
 						deptId, e);
@@ -202,11 +215,11 @@ public class EmployeeController {
 		}
 	}
 
-	private void cacheDepartmentObject(Department dept) {
+	private void cacheDepartmentObject(Department dept, List<OPARole> roles) {
 		// if caching is enabled, store the just received object in Redis cache
 		if (redisProperties.isEnabled()) {
 			try {
-				redisRepository.saveDepartment(dept);
+				redisRepository.saveDepartment(new CachedDepartment(dept, roles));
 			} catch (Exception e) {
 				LOG.error("Unable to cache department object with ID {} in Redis. Exception {}", 
 						dept.getDeptId(), e);

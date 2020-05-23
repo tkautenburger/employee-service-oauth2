@@ -1,4 +1,4 @@
-package de.legendlime.EmployeeService.config.redis;
+package de.legendlime.EmployeeService.repository;
 
 import javax.annotation.PostConstruct;
 
@@ -7,15 +7,15 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import de.legendlime.EmployeeService.domain.Department;
+import de.legendlime.EmployeeService.domain.CachedDepartment;
 
 @Repository
 public class DepartmentRedisRepositoryImpl implements DepartmentRedisRepository {
 
 	private static final String HASH_NAME ="departments";
 
-    private RedisTemplate<String, Department> redisTemplate;
-    private HashOperations<String, Long, Department> hashOperations;
+    private RedisTemplate<String, CachedDepartment> redisTemplate;
+    private HashOperations<String, Long, CachedDepartment> hashOperations;
 
     public DepartmentRedisRepositoryImpl(){
         super();
@@ -32,13 +32,13 @@ public class DepartmentRedisRepositoryImpl implements DepartmentRedisRepository 
     }
 
 	@Override
-	public void saveDepartment(Department dept) {
-        hashOperations.put(HASH_NAME, dept.getDeptId(), dept);
+	public void saveDepartment(CachedDepartment dept) {
+        hashOperations.put(HASH_NAME, dept.getDepartment().getDeptId(), dept);
 	}
 
 	@Override
-	public void updateDepartment(Department dept) {
-        hashOperations.put(HASH_NAME, dept.getDeptId(), dept);
+	public void updateDepartment(CachedDepartment dept) {
+        hashOperations.put(HASH_NAME, dept.getDepartment().getDeptId(), dept);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class DepartmentRedisRepositoryImpl implements DepartmentRedisRepository 
 	}
 
 	@Override
-	public Department findDepartment(long deptId) {
+	public CachedDepartment findDepartment(long deptId) {
 		return hashOperations.get(HASH_NAME, deptId);
 	}
 
