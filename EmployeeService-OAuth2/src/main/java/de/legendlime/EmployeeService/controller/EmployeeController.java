@@ -191,7 +191,9 @@ public class EmployeeController {
 			if (redisProperties.isEnabled() && authorities != null) {
 				List<OPARole> roles = new ArrayList<>();
 				for (String authority : authorities) {
-					roles.add(new OPARole(authority));
+					OPARole opaRole = new OPARole();
+					opaRole.setRole(authority);
+					roles.add(opaRole);
 				}
 				cacheDepartmentObject(dept, roles);
 			}
