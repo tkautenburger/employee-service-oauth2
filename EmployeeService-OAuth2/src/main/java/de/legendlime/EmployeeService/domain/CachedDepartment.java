@@ -7,15 +7,17 @@ public class CachedDepartment implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private Department department;
 	private String role;
+	private String version;
 	
 	public CachedDepartment() {
 		super();
 	}
 
-	public CachedDepartment(Department department, String role) {
+	public CachedDepartment(Department department, String role, String version) {
 		super();
 		this.department = department;
 		this.role = role;
+		this.version = version;
 	}
 
 	public String getRole() {
@@ -24,6 +26,14 @@ public class CachedDepartment implements Serializable{
 
 	public void setRole(String role) {
 		this.role = role;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public Department getDepartment() {
@@ -40,6 +50,7 @@ public class CachedDepartment implements Serializable{
 		int result = 1;
 		result = prime * result + ((department == null) ? 0 : department.hashCode());
 		result = prime * result + ((role == null) ? 0 : role.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
 
@@ -62,12 +73,17 @@ public class CachedDepartment implements Serializable{
 				return false;
 		} else if (!role.equals(other.role))
 			return false;
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
+			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "CachedDepartment [department=" + department + ", role=" + role + "]";
+		return "CachedDepartment [department=" + department + ", role=" + role + ", version=" + version + "]";
 	}
 
 }

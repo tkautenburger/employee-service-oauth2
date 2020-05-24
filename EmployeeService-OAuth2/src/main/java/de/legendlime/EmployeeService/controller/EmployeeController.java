@@ -1,7 +1,6 @@
 package de.legendlime.EmployeeService.controller;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.legendlime.EmployeeService.config.logging.ResponseLoggingFilter;
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean;
 import de.legendlime.EmployeeService.config.oauth2.SecurityContextUtils;
-import de.legendlime.EmployeeService.config.opa.OPAResult;
+import de.legendlime.EmployeeService.config.opa.OPAProperties;
 import de.legendlime.EmployeeService.config.redis.RedisProperties;
 import de.legendlime.EmployeeService.domain.CachedDepartment;
 import de.legendlime.EmployeeService.domain.Department;
@@ -84,6 +83,9 @@ public class EmployeeController {
 	
 	@Autowired
 	SecurityContextUtils securityContextUtils;
+	
+	@Autowired
+	OPAProperties opaProperties;
 
 	
 	/*--------------------------------*
@@ -188,8 +190,12 @@ public class EmployeeController {
 		if (dept != null) {
 			// get authorities header and build role list
 			List<String> authorities = restExchange.getHeaders().get("policy-authority");
-			if (redisProperties.isEnabled() && authorities != null) {
-				cacheDepartmentObject(dept, authorities.get(0));
+			// get current policy version from last OPA response
+			List<String> versions = restExchange.getHeaders().get("policy-version");
+			if (redisProperties.isEnabled() && authorities != null && authorities != null) {
+				cacheDepartmentObject(dept, authorities.get(0), versions.get(0));
+				// store policy version in OPA properties
+				opaProperties.setPolicyVersion(versions.get(0));
 			}
 		}
 		return dept;
@@ -205,12 +211,18 @@ public class EmployeeController {
 		if (redisProperties.isEnabled()) {
 			try {
 				CachedDepartment cDept = redisRepository.findDepartment(deptId);
-
-				// check here the authorities
-				Set<String> userRoles = SecurityContextUtils.getUserRoles();
 				if (cDept == null) {
+					// entry is not in cache and must be retrieved from downstream service
+					return null;
+				}				
+				// check first the policy version, if not equal to cached version, evict all cache entries
+				if (!cDept.getVersion().equals(opaProperties.getPolicyVersion())) {
+					LOG.debug("Policy version has changed. Evict all cache entries from Redis cache");
+					redisRepository.deleteAll();
 					return null;
 				}
+				// check the authorities from security context if it contains the cached role for the entry
+				Set<String> userRoles = SecurityContextUtils.getUserRoles();
 				if (userRoles.contains(cDept.getRole()) == true) {
 					LOG.debug("Redis cache access authorized with role {}.", cDept.getRole());
 					return cDept.getDepartment();
@@ -227,11 +239,11 @@ public class EmployeeController {
 		}
 	}
 
-	private void cacheDepartmentObject(Department dept, String role) {
+	private void cacheDepartmentObject(Department dept, String role, String version) {
 		// if caching is enabled, store the just received object in Redis cache
 		if (redisProperties.isEnabled()) {
 			try {
-				redisRepository.saveDepartment(new CachedDepartment(dept, role));
+				redisRepository.saveDepartment(new CachedDepartment(dept, role, version));
 			} catch (Exception e) {
 				LOG.error("Unable to cache department object with ID {} in Redis. Exception {}", 
 						dept.getDeptId(), e);

@@ -45,6 +45,11 @@ public class DepartmentRedisRepositoryImpl implements DepartmentRedisRepository 
 	public void deleteDepartment(long deptId) {
         hashOperations.delete(HASH_NAME, deptId);
 	}
+	
+	@Override
+	public void deleteAll() {
+		this.redisTemplate.delete(HASH_NAME);
+	}
 
 	@Override
 	public CachedDepartment findDepartment(long deptId) {
