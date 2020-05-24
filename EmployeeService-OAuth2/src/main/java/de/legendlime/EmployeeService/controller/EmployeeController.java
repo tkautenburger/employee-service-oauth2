@@ -226,7 +226,7 @@ public class EmployeeController {
 				if (authorized == true) {
 					return cDept.getDepartment();
 				} else {
-					LOG.debug("Redis cache access not authorized for client roles {}", userRoles);
+					LOG.debug("Redis cache access not authorized for client roles {}. Granted authorities {}", userRoles, cacheRoles);
 					return null;
 				}
 			} catch (Exception e) {
