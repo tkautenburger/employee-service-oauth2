@@ -214,10 +214,13 @@ public class EmployeeController {
 
 				// TODO: check here the authorities
 				Set<String> userRoles = SecurityContextUtils.getUserRoles();
+				if (cDept == null) {
+					return null;
+				}
 				List<OPARole> cacheRoles = cDept.getRoles();
 				boolean authorized = false;
 				for (OPARole role : cacheRoles) {
-					if (userRoles.contains(role.getRole()) == true) {
+					if (userRoles.contains(role.getRole().substring(1, role.getRole().length()-1)) == true) {
 						LOG.debug("Redis cache access authorized with role {}.", role.getRole());
 						authorized = true;
 						break;
