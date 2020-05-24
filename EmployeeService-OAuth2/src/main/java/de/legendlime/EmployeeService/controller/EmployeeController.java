@@ -187,7 +187,7 @@ public class EmployeeController {
 		
 		if (dept != null) {
 			// get authorities header and build role list
-			List<String> authorities = restExchange.getHeaders().get("authorities");
+			List<String> authorities = restExchange.getHeaders().get("policy-authority");
 			if (redisProperties.isEnabled() && authorities != null) {
 				cacheDepartmentObject(dept, authorities.get(0));
 			}

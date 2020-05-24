@@ -2,7 +2,6 @@ package de.legendlime.EmployeeService.config.opa;
 
 import java.io.Serializable;
 
-
 public class OPAResult implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -70,5 +69,6 @@ public class OPAResult implements Serializable {
 	public String toString() {
 		return "OPARole [version=" + version + ", role=" + role + "]";
 	}
+
 
 }
