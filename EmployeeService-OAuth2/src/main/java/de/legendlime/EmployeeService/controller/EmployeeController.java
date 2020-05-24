@@ -194,8 +194,6 @@ public class EmployeeController {
 			List<String> versions = restExchange.getHeaders().get("policy-version");
 			if (redisProperties.isEnabled() && authorities != null && authorities != null) {
 				cacheDepartmentObject(dept, authorities.get(0), versions.get(0));
-				// store policy version in OPA properties
-				opaProperties.setPolicyVersion(versions.get(0));
 			}
 		}
 		return dept;
