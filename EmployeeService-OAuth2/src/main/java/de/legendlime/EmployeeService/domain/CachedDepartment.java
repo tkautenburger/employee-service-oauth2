@@ -1,32 +1,29 @@
 package de.legendlime.EmployeeService.domain;
 
 import java.io.Serializable;
-import java.util.List;
-
-import de.legendlime.EmployeeService.config.opa.OPARole;
 
 public class CachedDepartment implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	private Department department;
-	private List<OPARole> roles;
+	private String role;
 	
 	public CachedDepartment() {
 		super();
 	}
 
-	public CachedDepartment(Department department, List<OPARole> roles) {
+	public CachedDepartment(Department department, String role) {
 		super();
 		this.department = department;
-		this.roles = roles;
+		this.role = role;
 	}
 
-	public List<OPARole> getRoles() {
-		return roles;
+	public String getRole() {
+		return role;
 	}
 
-	public void setRoles(List<OPARole> roles) {
-		this.roles = roles;
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 	public Department getDepartment() {
@@ -42,7 +39,7 @@ public class CachedDepartment implements Serializable{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((department == null) ? 0 : department.hashCode());
-		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
+		result = prime * result + ((role == null) ? 0 : role.hashCode());
 		return result;
 	}
 
@@ -60,17 +57,17 @@ public class CachedDepartment implements Serializable{
 				return false;
 		} else if (!department.equals(other.department))
 			return false;
-		if (roles == null) {
-			if (other.roles != null)
+		if (role == null) {
+			if (other.role != null)
 				return false;
-		} else if (!roles.equals(other.roles))
+		} else if (!role.equals(other.role))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "CachedDepartment [department=" + department + ", roles=" + roles + "]";
+		return "CachedDepartment [department=" + department + ", role=" + role + "]";
 	}
 
 }

@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.legendlime.EmployeeService.config.logging.ResponseLoggingFilter;
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean;
 import de.legendlime.EmployeeService.config.oauth2.SecurityContextUtils;
-import de.legendlime.EmployeeService.config.opa.OPARole;
+import de.legendlime.EmployeeService.config.opa.OPAResult;
 import de.legendlime.EmployeeService.config.redis.RedisProperties;
 import de.legendlime.EmployeeService.domain.CachedDepartment;
 import de.legendlime.EmployeeService.domain.Department;
@@ -189,13 +189,7 @@ public class EmployeeController {
 			// get authorities header and build role list
 			List<String> authorities = restExchange.getHeaders().get("authorities");
 			if (redisProperties.isEnabled() && authorities != null) {
-				List<OPARole> roles = new ArrayList<>();
-				for (String authority : authorities) {
-					OPARole opaRole = new OPARole();
-					opaRole.setRole(authority);
-					roles.add(opaRole);
-				}
-				cacheDepartmentObject(dept, roles);
+				cacheDepartmentObject(dept, authorities.get(0));
 			}
 		}
 		return dept;
@@ -212,24 +206,16 @@ public class EmployeeController {
 			try {
 				CachedDepartment cDept = redisRepository.findDepartment(deptId);
 
-				// TODO: check here the authorities
+				// check here the authorities
 				Set<String> userRoles = SecurityContextUtils.getUserRoles();
 				if (cDept == null) {
 					return null;
 				}
-				List<OPARole> cacheRoles = cDept.getRoles();
-				boolean authorized = false;
-				for (OPARole role : cacheRoles) {
-					if (userRoles.contains(role.getRole().substring(1, role.getRole().length()-1)) == true) {
-						LOG.debug("Redis cache access authorized with role {}.", role.getRole());
-						authorized = true;
-						break;
-					}
-				}
-				if (authorized == true) {
+				if (userRoles.contains(cDept.getRole()) == true) {
+					LOG.debug("Redis cache access authorized with role {}.", cDept.getRole());
 					return cDept.getDepartment();
 				} else {
-					LOG.debug("Redis cache access not authorized for client roles {}. Granted authorities {}", userRoles, cacheRoles);
+					LOG.debug("Redis cache access not authorized for client roles {}. Granted authorities {}", userRoles, cDept.getRole());
 					return null;
 				}
 			} catch (Exception e) {
@@ -241,11 +227,11 @@ public class EmployeeController {
 		}
 	}
 
-	private void cacheDepartmentObject(Department dept, List<OPARole> roles) {
+	private void cacheDepartmentObject(Department dept, String role) {
 		// if caching is enabled, store the just received object in Redis cache
 		if (redisProperties.isEnabled()) {
 			try {
-				redisRepository.saveDepartment(new CachedDepartment(dept, roles));
+				redisRepository.saveDepartment(new CachedDepartment(dept, role));
 			} catch (Exception e) {
 				LOG.error("Unable to cache department object with ID {} in Redis. Exception {}", 
 						dept.getDeptId(), e);
