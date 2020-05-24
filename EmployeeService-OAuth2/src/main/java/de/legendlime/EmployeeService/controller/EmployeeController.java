@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.legendlime.EmployeeService.config.logging.ResponseLoggingFilter;
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean;
+import de.legendlime.EmployeeService.config.oauth2.SecurityContextUtils;
 import de.legendlime.EmployeeService.config.opa.OPARole;
 import de.legendlime.EmployeeService.config.redis.RedisProperties;
 import de.legendlime.EmployeeService.domain.CachedDepartment;
@@ -79,6 +81,9 @@ public class EmployeeController {
 
 	@Autowired
 	DepartmentRedisRepository redisRepository;
+	
+	@Autowired
+	SecurityContextUtils securityContextUtils;
 
 	
 	/*--------------------------------*
@@ -179,10 +184,11 @@ public class EmployeeController {
 		ResponseEntity<Department> restExchange = oauth2RestTemplateBean.getoAuth2RestTemplate().exchange(URI,
 				HttpMethod.GET, null, Department.class, deptId);
 		dept = restExchange.getBody();
+		
 		if (dept != null) {
 			// get authorities header and build role list
 			List<String> authorities = restExchange.getHeaders().get("authorities");
-			if (authorities != null) {
+			if (redisProperties.isEnabled() && authorities != null) {
 				List<OPARole> roles = new ArrayList<>();
 				for (String authority : authorities) {
 					roles.add(new OPARole(authority));
@@ -203,11 +209,26 @@ public class EmployeeController {
 		if (redisProperties.isEnabled()) {
 			try {
 				CachedDepartment cDept = redisRepository.findDepartment(deptId);
+
 				// TODO: check here the authorities
-				return cDept.getDepartment();
+				Set<String> userRoles = SecurityContextUtils.getUserRoles();
+				List<OPARole> cacheRoles = cDept.getRoles();
+				boolean authorized = false;
+				for (OPARole role : cacheRoles) {
+					if (userRoles.contains(role.getRole()) == true) {
+						LOG.debug("Redis cache access authorized with role {}.", role.getRole());
+						authorized = true;
+						break;
+					}
+				}
+				if (authorized == true) {
+					return cDept.getDepartment();
+				} else {
+					LOG.debug("Redis cache access not authorized for client roles {}", userRoles);
+					return null;
+				}
 			} catch (Exception e) {
-				LOG.error("Error while trying to retrieve department {} from Redis.  Exception {}",
-						deptId, e);
+				LOG.error("Error while trying to retrieve department {} from Redis.  Exception {}", deptId, e);
 				return null;
 			}
 		} else {

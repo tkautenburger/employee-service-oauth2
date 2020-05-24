@@ -48,8 +48,8 @@ public class JwtAccessTokenCustomizer extends DefaultAccessTokenConverter implem
   }
 
   /**
-   * Spring oauth2 expects roles under authorities element in tokenMap, but keycloak provides it under resource_access. Hence extractAuthentication
-   * method is overriden to extract roles from resource_access.
+   * Spring oauth2 expects roles under authorities element in tokenMap, but keycloak provides it under resource_access. 
+   * Hence extractAuthentication method is overriden to extract roles from resource_access.
    *
    * @return OAuth2Authentication with authorities for given application
    */
