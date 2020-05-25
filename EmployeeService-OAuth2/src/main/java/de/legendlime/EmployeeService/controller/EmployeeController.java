@@ -108,7 +108,7 @@ public class EmployeeController {
 			throw new ResourceNotFoundException(NOT_FOUND + id);
 
 		Employee e = empOpt.get();
-		Department d = this.getDept(e.getDeptId());
+		Department d = this.getgetDepartment(e.getDeptId());
 		if (d != null) {
 			e.setDeptName(d.getName());
 			e.setDeptDesc(d.getDescription());
@@ -174,26 +174,32 @@ public class EmployeeController {
 	 * Downstream REST client methods *
 	 *--------------------------------*/
 
-	public Department getDept(Long deptId) {
+	public Department getgetDepartment(Long deptId) {
+		
+		Department dept;
 
-		// check Redis cache and retrieve object from there if found
-		Department dept = checkRedisCache(deptId);
-		if (dept != null) {
-			LOG.debug("Got department object with ID {} from Redis cache", dept);
-			return dept;
+		// check cache if enabled and retrieve object from there if found
+		if (redisProperties.isEnabled()) {
+			dept = checkRedisCache(deptId);
+			if (dept != null) {
+				LOG.info("Got department object with ID {} from Redis cache", dept.getDeptId());
+				return dept;
+			}
 		}
-		// department not cached, get it from downstream service
+		// department not cached or cache disabled, get object from downstream service
 		ResponseEntity<Department> restExchange = oauth2RestTemplateBean.getoAuth2RestTemplate().exchange(URI,
 				HttpMethod.GET, null, Department.class, deptId);
 		dept = restExchange.getBody();
 		
-		if (dept != null) {
-			// get authorities header and build role list
+		// save object in cache if enabled
+		if (redisProperties.isEnabled() && dept != null) {
+			// get authorities header with role from last OPA response
 			List<String> authorities = restExchange.getHeaders().get("policy-authority");
 			// get current policy version from last OPA response
 			List<String> versions = restExchange.getHeaders().get("policy-version");
-			if (redisProperties.isEnabled() && authorities != null && authorities != null) {
+			if (authorities != null) {
 				cacheDepartmentObject(dept, authorities.get(0), versions.get(0));
+				LOG.info("Save department object with ID {} in Redis cache", dept.getDeptId());
 			}
 		}
 		return dept;
@@ -205,50 +211,43 @@ public class EmployeeController {
 	 *--------------------------------*/
 
 	private Department checkRedisCache(long deptId) {
-		// if caching is enabled, try to find the downstream object from Redis cache
-		if (redisProperties.isEnabled()) {
-			try {
-				CachedDepartment cDept = redisRepository.findDepartment(deptId);
-				if (cDept == null) {
-					// entry is not in cache and must be retrieved from downstream service
-					return null;
-				}				
-				// check first the policy version, if not equal to cached version, evict all cache entries
-				if (!cDept.getVersion().equals(opaProperties.getPolicyVersion())) {
-					LOG.debug("Policy version has changed. Evict all cache entries from Redis cache");
-					redisRepository.deleteAll();
-					return null;
-				}
-				// check the authorities from security context if it contains the cached role for the entry
-				Set<String> userRoles = SecurityContextUtils.getUserRoles();
-				if (userRoles.contains(cDept.getRole()) == true) {
-					LOG.debug("Redis cache access authorized with role {}.", cDept.getRole());
-					return cDept.getDepartment();
-				} else {
-					LOG.debug("Redis cache access not authorized for client roles {}. Granted authorities {}", userRoles, cDept.getRole());
-					return null;
-				}
-			} catch (Exception e) {
-				LOG.error("Error while trying to retrieve department {} from Redis.  Exception {}", deptId, e);
+		try {
+			CachedDepartment cDept = redisRepository.findDepartment(deptId);
+			if (cDept == null) {
+				// entry is not in cache and must be retrieved from downstream service
 				return null;
 			}
-		} else {
+			// check first the policy version, if not equal to cached version, evict all
+			// cache entries
+			if (!cDept.getVersion().equals(opaProperties.getPolicyVersion())) {
+				LOG.debug("Authorization policy version has changed. Evict all cache entries.");
+				redisRepository.deleteAll();
+				return null;
+			}
+			// check the authorities from security context if it contains the cached role
+			// for the entry
+			Set<String> userRoles = SecurityContextUtils.getUserRoles();
+			if (userRoles.contains(cDept.getRole()) == true) {
+				LOG.debug("Cached object access authorized with role {}.", cDept.getRole());
+				return cDept.getDepartment();
+			} else {
+				LOG.debug("Cached object access not authorized for client authorities {}. Granted authority is {}", 
+						userRoles, cDept.getRole());
+				return null;
+			}
+		} catch (Exception e) {
+			LOG.error("Error while trying to retrieve department {} from cache.  Exception {}", deptId, e);
 			return null;
 		}
 	}
 
 	private void cacheDepartmentObject(Department dept, String role, String version) {
-		// if caching is enabled, store the just received object in Redis cache
-		if (redisProperties.isEnabled()) {
-			try {
-				redisRepository.saveDepartment(new CachedDepartment(dept, role, version));
-			} catch (Exception e) {
-				LOG.error("Unable to cache department object with ID {} in Redis. Exception {}", 
-						dept.getDeptId(), e);
-			}
+		try {
+			redisRepository.saveDepartment(new CachedDepartment(dept, role, version));
+		} catch (Exception e) {
+			LOG.error("Unable to cache department object with ID {}. Exception {}", dept.getDeptId(), e);
 		}
 	}
-
 	
 	/*--------------------------------*
 	 * Auditing methods               *
