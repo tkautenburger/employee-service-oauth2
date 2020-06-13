@@ -281,7 +281,7 @@ public class EmployeeController {
 			record.setObjectType(obj.getClass().getName());
 			record.setObjectId(obj.getEmpId());
 		}
-		if ("CREATE".equalsIgnoreCase(method) || "UPDATE".equalsIgnoreCase(method)) {
+		if (obj != null && ("CREATE".equalsIgnoreCase(method) || "UPDATE".equalsIgnoreCase(method))) {
 			// Creating the ObjectMapper object
 			ObjectMapper mapper = new ObjectMapper();
 			// Converting the Object to JSONString

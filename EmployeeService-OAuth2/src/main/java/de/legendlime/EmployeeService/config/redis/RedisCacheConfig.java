@@ -9,6 +9,8 @@ import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import de.legendlime.EmployeeService.domain.CachedDepartment;
+
 
 @Configuration
 public class RedisCacheConfig {
@@ -32,8 +34,8 @@ public class RedisCacheConfig {
 
     @Bean
 	@ConditionalOnProperty(prefix = "legendlime.redis", name = "enabled", havingValue = "true")
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
+    public RedisTemplate<String, CachedDepartment> redisTemplate() {
+        RedisTemplate<String, CachedDepartment> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
         return template;
 	}

@@ -22,7 +22,7 @@ public class DepartmentRedisRepositoryImpl implements DepartmentRedisRepository 
     }
 
 	@Autowired
-    private DepartmentRedisRepositoryImpl(RedisTemplate redisTemplate) {
+    private DepartmentRedisRepositoryImpl(RedisTemplate<String, CachedDepartment> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
