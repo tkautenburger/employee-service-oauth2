@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.legendlime.EmployeeService.domain.Employee;
 
-@SpringBootApplication(proxyBeanMethods = false)
+@SpringBootApplication
 @EnableBinding(Source.class)
 public class EmployeeServiceApplication {
 	
