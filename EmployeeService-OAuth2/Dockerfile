@@ -27,4 +27,5 @@ ENTRYPOINT ["java",  \
 "-Djavax.net.ssl.keyStore=$KEY_STORE_PATH", \
 "-Djavax.net.ssl.keyStorePassword=$KEY_STORE_PASSWORD", \
 "-Djavax.net.ssl.keyStorePassword=$KEY_STORE_PASSWORD", \
+"$HEAP_OPTIONS", \
 "org.springframework.boot.loader.JarLauncher"]
