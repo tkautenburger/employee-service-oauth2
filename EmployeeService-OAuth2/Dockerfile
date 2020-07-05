@@ -17,15 +17,4 @@ COPY --from=builder application/spring-boot-loader/ ./
 COPY --from=builder application/snapshot-dependencies/ ./
 COPY --from=builder application/application/ ./
 
-ENTRYPOINT ["java",  \
-"-Dspring.profiles.active=$PROFILE", \
-"-Dspring.application.name=$APP_NAME", \
-"-Dserver.port=$HTTP_SERVER_PORT", \
-"-Dlegendlime.https-port=$HTTPS_SERVER_PORT", \
-"-Djavax.net.ssl.trustStore=$TRUST_STORE_PATH", \
-"-Djavax.net.ssl.trustStorePassword=$TRUST_STORE_PASSWORD", \
-"-Djavax.net.ssl.keyStore=$KEY_STORE_PATH", \
-"-Djavax.net.ssl.keyStorePassword=$KEY_STORE_PASSWORD", \
-"-Djavax.net.ssl.keyStorePassword=$KEY_STORE_PASSWORD", \
-"$HEAP_OPTIONS", \
-"org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT java -Dspring.profiles.active=$PROFILE -Dspring.application.name=$APP_NAME -Dserver.port=$HTTP_SERVER_PORT -Dlegendlime.https-port=$HTTPS_SERVER_PORT -Djavax.net.ssl.trustStore=$TRUST_STORE_PATH -Djavax.net.ssl.trustStorePassword=$TRUST_STORE_PASSWORD -Djavax.net.ssl.keyStore=$KEY_STORE_PATH -Djavax.net.ssl.keyStorePassword=$KEY_STORE_PASSWORD -Djavax.net.ssl.keyStorePassword=$KEY_STORE_PASSWORD -Xmx512M -Xms512M -Djdk.tls.client.protocols=TLSv1.2 org.springframework.boot.loader.JarLauncher

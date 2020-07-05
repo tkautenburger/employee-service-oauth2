@@ -3,7 +3,9 @@ package de.legendlime.EmployeeService.config.vault;
 import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.vault.config.VaultSecretBackendDescriptor;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -15,9 +17,14 @@ import org.springframework.validation.annotation.Validated;
  *
  */
 
+@Component
+@Configuration
+@Primary
 @ConfigurationProperties("pki")
 @Validated
-public class VaultPkiProperties implements VaultSecretBackendDescriptor {
+public class VaultPkiProperties {
+	
+	// Use @Primary annotation, otherwise it conflicts with a properties from the Vault library
 
 	/**
 	 * Enable pki backend usage.
