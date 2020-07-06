@@ -59,3 +59,4 @@ jobs:
         image_tag: ${{ env.IMAGE_TAG }}
         context: ./${{ env.BASE_DIR }}
         dockerfile: ${{ env.DOCKERFILE }}
+  
