@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>de.legendlime</groupId>
 	<artifactId>employeeservice-oauth2</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.2-SNAPSHOT</version>
 	<name>EmployeeService-OAuth2</name>
 	<description>Employee Service for Reference Architecture</description>
 
