@@ -25,7 +25,6 @@ public class EmployeeServiceApplication {
 		public Employee getDummy() {
 			
 			return new Employee(9999, "Dummy", "Dummy", 0L);
-		}
-		
+		}		
 	}
 }
