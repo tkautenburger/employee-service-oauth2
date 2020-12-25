@@ -2,6 +2,7 @@ package de.legendlime.EmployeeService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import de.legendlime.EmployeeService.domain.Employee;
 
+@EnableCircuitBreaker
 @SpringBootApplication(proxyBeanMethods = false)
 @EnableBinding(Source.class)
 public class EmployeeServiceApplication {

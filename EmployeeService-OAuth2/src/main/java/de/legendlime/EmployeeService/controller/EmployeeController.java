@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 import de.legendlime.EmployeeService.config.logging.ResponseLoggingFilter;
 import de.legendlime.EmployeeService.config.oauth2.OAuth2RestTemplateBean;
@@ -174,6 +175,7 @@ public class EmployeeController {
 	 * Downstream REST client methods *
 	 *--------------------------------*/
 
+	@HystrixCommand(fallbackMethod = "reliableDepartment")
 	public Department getgetDepartment(Long deptId) {
 		
 		Department dept;
@@ -224,6 +226,10 @@ public class EmployeeController {
 			}
 		}
 		return dept;
+	}
+	
+	public Department reliableDepartment(Long deptId) {
+		return new Department(999, "Circuit Breaker", "Downstream Service not available");
 	}
 
 	
