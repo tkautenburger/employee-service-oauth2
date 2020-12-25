@@ -186,9 +186,30 @@ public class EmployeeController {
 				return dept;
 			}
 		}
+		/*
+		CircuitBreaker circuitBreaker = CircuitBreaker.ofDefaults("departmentService");
+		Retry retry = Retry.ofDefaults("departmentService");
+		
+		// Decorate your call to department service with a CircuitBreaker
+		Supplier<ResponseEntity<Department>> supplier = () -> oauth2RestTemplateBean.getoAuth2RestTemplate().exchange(URI, 
+				HttpMethod.GET, null, Department.class, deptId);
+		
+		Supplier<ResponseEntity<Department>> decoratedSupplier = Decorators.ofSupplier(supplier)
+				  .withCircuitBreaker(circuitBreaker).decorate();
+		
+		// Decorate your call with automatic retry
+		decoratedSupplier = Retry
+		    .decorateSupplier(retry, decoratedSupplier);
+		    
+		ResponseEntity<Department> restExchange = Try.ofSupplier(decoratedSupplier)
+				  .recover(throwable -> "Hello from Recovery").get();
+	   */
+		
 		// department not cached or cache disabled, get object from downstream service
 		ResponseEntity<Department> restExchange = oauth2RestTemplateBean.getoAuth2RestTemplate().exchange(URI,
 				HttpMethod.GET, null, Department.class, deptId);
+		
+		
 		dept = restExchange.getBody();
 		
 		// save object in cache if enabled
