@@ -96,6 +96,7 @@ public class EmployeeController {
 	@GetMapping(value = "/employees", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Employee> getAll(HttpServletRequest request, HttpServletResponse response) {
 
+		LOG.debug("request GET /employees");
 		audit.publishAuditMessage(auditHelper("GET", null, request, response));
 		return repo.findAll();
 	}
@@ -104,12 +105,15 @@ public class EmployeeController {
 	public Employee getSingle(@PathVariable(name = "id", required = true) Long id, HttpServletRequest request,
 			HttpServletResponse response) {
 
+		LOG.debug("request GET /employees/{}", id);
 		Optional<Employee> empOpt = repo.findById(id);
-		if (!empOpt.isPresent())
+		if (!empOpt.isPresent()) {
+			LOG.error(NOT_FOUND, id);
 			throw new ResourceNotFoundException(NOT_FOUND + id);
+		}
 
 		Employee e = empOpt.get();
-		Department d = this.getgetDepartment(e.getDeptId());
+		Department d = this.getDepartment(e.getDeptId());
 		if (d != null) {
 			e.setDeptName(d.getName());
 			e.setDeptDesc(d.getDescription());
@@ -123,8 +127,10 @@ public class EmployeeController {
 	public Employee create(@Valid @RequestBody EmployeeDTO emp, HttpServletRequest request,
 			HttpServletResponse response) {
 
-		if (emp == null)
+		if (emp == null) {
+			LOG.error(NOT_NULL);
 			throw new IllegalArgumentException(NOT_NULL);
+		}
 
 		// map DTO, direct use of entity leads to security vulnerability
 		Employee persistentEmp = new Employee();
@@ -132,6 +138,7 @@ public class EmployeeController {
 		persistentEmp.setFirstname(emp.getFirstname());
 		persistentEmp.setLastname(emp.getLastname());
 		persistentEmp.setDeptId(emp.getDeptId());
+		LOG.debug("request POST /employees, body:", persistentEmp.toString());
 
 		audit.publishAuditMessage(auditHelper("CREATE", persistentEmp, request, response));
 
@@ -143,13 +150,16 @@ public class EmployeeController {
 			HttpServletRequest request, HttpServletResponse response) {
 
 		Optional<Employee> empOpt = repo.findById(id);
-		if (!empOpt.isPresent())
+		if (!empOpt.isPresent()) {
+			LOG.error(NOT_FOUND, id);
 			throw new ResourceNotFoundException(NOT_FOUND + id);
+		}
 		Employee e = empOpt.get();
 		e.setEmpId(emp.getEmpId());
 		e.setFirstname(emp.getFirstname());
 		e.setLastname(emp.getLastname());
 		e.setDeptId(emp.getDeptId());
+		LOG.debug("request PUT /employees/{}, body: {}", id, e.toString());
 
 		audit.publishAuditMessage(auditHelper("UPDATE", e, request, response));
 
@@ -162,9 +172,13 @@ public class EmployeeController {
 			HttpServletResponse response) {
 
 		Optional<Employee> empOpt = repo.findById(id);
-		if (!empOpt.isPresent())
+		if (!empOpt.isPresent()) { 
+			LOG.error(NOT_FOUND, id);
 			throw new ResourceNotFoundException(NOT_FOUND + id);
+		}
 		repo.delete(empOpt.get());
+		LOG.debug("request DELETE /employees/{}", id);
+		
 		audit.publishAuditMessage(auditHelper("DELETE", empOpt.get(), request, response));
 
 		return ResponseEntity.ok().build();
@@ -174,9 +188,11 @@ public class EmployeeController {
 	/*--------------------------------*
 	 * Downstream REST client methods *
 	 *--------------------------------*/
+	
+	// Circuit Breaker does not seem to work, maybe because its not a @Component or @Service annotated class
 
 	@HystrixCommand(fallbackMethod = "reliableDepartment")
-	public Department getgetDepartment(Long deptId) {
+	public Department getDepartment(Long deptId) {
 		
 		Department dept;
 
@@ -187,30 +203,10 @@ public class EmployeeController {
 				LOG.info("Got department object with ID {} from Redis cache", dept.getDeptId());
 				return dept;
 			}
-		}
-		/*
-		CircuitBreaker circuitBreaker = CircuitBreaker.ofDefaults("departmentService");
-		Retry retry = Retry.ofDefaults("departmentService");
-		
-		// Decorate your call to department service with a CircuitBreaker
-		Supplier<ResponseEntity<Department>> supplier = () -> oauth2RestTemplateBean.getoAuth2RestTemplate().exchange(URI, 
-				HttpMethod.GET, null, Department.class, deptId);
-		
-		Supplier<ResponseEntity<Department>> decoratedSupplier = Decorators.ofSupplier(supplier)
-				  .withCircuitBreaker(circuitBreaker).decorate();
-		
-		// Decorate your call with automatic retry
-		decoratedSupplier = Retry
-		    .decorateSupplier(retry, decoratedSupplier);
-		    
-		ResponseEntity<Department> restExchange = Try.ofSupplier(decoratedSupplier)
-				  .recover(throwable -> "Hello from Recovery").get();
-	   */
-		
+		}		
 		// department not cached or cache disabled, get object from downstream service
 		ResponseEntity<Department> restExchange = oauth2RestTemplateBean.getoAuth2RestTemplate().exchange(URI,
 				HttpMethod.GET, null, Department.class, deptId);
-		
 		
 		dept = restExchange.getBody();
 		
@@ -229,7 +225,7 @@ public class EmployeeController {
 	}
 	
 	public Department reliableDepartment(Long deptId) {
-		return new Department(999, "Circuit Breaker", "Downstream Service not available");
+		return new Department(999, "Department Service not available", "Department Service not available");
 	}
 
 	
