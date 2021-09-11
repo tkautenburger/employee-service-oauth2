@@ -54,7 +54,8 @@ public class ResponseLoggingFilter implements Filter {
 		// Add trace ID to the response
 		HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
 		if (httpServletResponse.getHeader(TRACE_ID) == null)
-			httpServletResponse.addHeader(TRACE_ID, traceId);
+			// replace all whitespaces in header to avoid CRLF attack
+			httpServletResponse.addHeader(TRACE_ID, traceId.replaceAll("\\s", ""));
 
 		if (buildSpan && tracer.activeSpan() != null)
 			tracer.activeSpan().finish();
