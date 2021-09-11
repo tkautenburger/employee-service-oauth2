@@ -1,4 +1,4 @@
-FROM openjdk:12-jdk-alpine as builder
+FROM openjdk:18-jdk-alpine as builder
 
 # OpenJDK image is about 50MB larger than alpine image
 # FROM openjdk:11-slim as builder
@@ -7,7 +7,7 @@ ARG JAR_FILE=target/@project.build.finalName@.jar
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
  
-FROM openjdk:12-jdk-alpine
+FROM openjdk:18-jdk-alpine
 
 # OpenJDK image is about 50MB larger than alpine image
 # FROM openjdk:11-slim
