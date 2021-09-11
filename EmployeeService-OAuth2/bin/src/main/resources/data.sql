@@ -1,2 +1,0 @@
-INSERT INTO EMPLOYEE (emp_id, firstname, lastname, dept_id) VALUES ('101', 'Max', 'Mustermann','4711');
-INSERT INTO EMPLOYEE (emp_id, firstname, lastname, dept_id) VALUES ('102', 'Jane', 'Doe', '4712');
